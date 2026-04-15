@@ -1,6 +1,8 @@
 /.phpunit.cache
 /bootstrap/ssr
 /node_modules
+/database/*.sqlite
+/database/*.sqlite-journal
 /public/build
 /public/hot
 /public/storage

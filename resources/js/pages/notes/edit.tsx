@@ -82,7 +82,7 @@ export default function EditNote({ note, folders }: Props) {
     return (
         <>
             <Head title={title || 'Untitled'} />
-            <div className="flex h-[calc(100vh-4rem)] flex-col">
+            <div className="flex h-[calc(100vh-var(--topnav-height))] flex-col">
                 <div className="flex flex-wrap items-center gap-2 border-b px-4 py-3">
                     <input
                         value={title}
