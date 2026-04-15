@@ -17,6 +17,8 @@ export type FolderNode = {
     name: string;
     slug: string;
     parent_id: number | null;
+    is_private: boolean;
+    user_id: number;
     notes: NoteLite[];
     children: FolderNode[];
 };

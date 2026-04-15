@@ -18,6 +18,7 @@ export function FoldersPanel() {
 
     const [creating, setCreating] = useState(false);
     const [name, setName] = useState('');
+    const [isPrivate, setIsPrivate] = useState(false);
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -28,12 +29,13 @@ export function FoldersPanel() {
         }
         router.post(
             '/folders',
-            { name: trimmed, parent_id: null },
+            { name: trimmed, parent_id: null, is_private: isPrivate },
             {
                 preserveScroll: true,
                 onSuccess: () => {
                     setCreating(false);
                     setName('');
+                    setIsPrivate(false);
                 },
             },
         );
@@ -80,18 +82,31 @@ export function FoldersPanel() {
             </div>
 
             {creating && (
-                <form onSubmit={submit} className="px-3 pb-2">
+                <form onSubmit={submit} className="flex flex-col gap-1 px-3 pb-2">
                     <input
                         autoFocus
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        onBlur={() => {
-                            if (!name.trim()) setCreating(false);
+                        onKeyDown={(e) => {
+                            if (e.key === 'Escape') {
+                                setCreating(false);
+                                setName('');
+                                setIsPrivate(false);
+                            }
                         }}
                         placeholder="Folder name"
                         className="w-full rounded-md border bg-background px-2 py-1 text-sm outline-none focus:border-primary"
                         style={{ borderColor: 'var(--glass-border)' }}
                     />
+                    <label className="flex items-center gap-1.5 px-0.5 text-xs text-[var(--scheme-fg-muted)]">
+                        <input
+                            type="checkbox"
+                            checked={isPrivate}
+                            onChange={(e) => setIsPrivate(e.target.checked)}
+                            className="h-3 w-3"
+                        />
+                        Private folder (only visible to you)
+                    </label>
                 </form>
             )}
 

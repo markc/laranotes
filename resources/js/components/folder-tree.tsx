@@ -61,6 +61,16 @@ function FolderTreeNode({
         }
     };
 
+    const togglePrivacy = (e: MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        router.put(
+            `/folders/${node.id}`,
+            { is_private: !node.is_private },
+            { preserveScroll: true },
+        );
+    };
+
     const deleteFolder = (e: MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -90,6 +100,9 @@ function FolderTreeNode({
                     />
                     <FolderIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <span className="truncate font-medium">{node.name}</span>
+                    {node.is_private && (
+                        <Lock className="h-3 w-3 shrink-0 text-muted-foreground" />
+                    )}
                 </button>
                 <button
                     type="button"
@@ -98,6 +111,14 @@ function FolderTreeNode({
                     title="New note in this folder"
                 >
                     <Plus className="h-3.5 w-3.5" />
+                </button>
+                <button
+                    type="button"
+                    onClick={togglePrivacy}
+                    className="opacity-0 group-hover:opacity-100 rounded p-0.5 text-muted-foreground hover:bg-sidebar-accent-foreground/10"
+                    title={node.is_private ? 'Make folder public' : 'Make folder private'}
+                >
+                    <Lock className="h-3 w-3" />
                 </button>
                 <button
                     type="button"

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Role;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -53,40 +54,86 @@ class Folder extends Model
 
     /**
      * Build a nested folder tree visible to the given user.
-     * Private notes are filtered to only show the author's own.
+     *
+     * A folder is "directly visible" if it is public or owned by the viewer.
+     * A folder is "chain-visible" if it is directly visible AND every ancestor
+     * in its parent chain is directly visible — this prevents public children
+     * of private folders from leaking out at the root.
+     *
+     * After building the tree, any non-owned public folder with no visible
+     * notes and no surviving children is pruned (graffiti prevention). The
+     * viewer's own empty folders are always kept so they have somewhere to
+     * work.
      */
     public static function tree(User $user): array
     {
-        $folders = static::with(['notes' => function ($query) use ($user) {
-            $query->where(function ($q) use ($user) {
-                $q->where('is_private', false)->orWhere('user_id', $user->id);
-            })->orderBy('title');
+        $all = static::with(['notes' => function ($query) use ($user) {
+            $query->visibleTo($user)->orderBy('title');
         }])
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get();
 
-        return static::buildBranches($folders, null);
+        $byId = $all->keyBy('id');
+
+        $directlyVisible = $all->filter(
+            fn (Folder $f) => static::isDirectlyVisible($f, $user)
+        );
+
+        $visibleIds = $directlyVisible->pluck('id')->flip();
+
+        $chainVisible = $directlyVisible->filter(function (Folder $f) use ($visibleIds, $byId) {
+            $parentId = $f->parent_id;
+            while ($parentId !== null) {
+                if (! $visibleIds->has($parentId)) {
+                    return false;
+                }
+                $parentId = $byId->get($parentId)?->parent_id;
+            }
+
+            return true;
+        });
+
+        return static::buildBranches($chainVisible, null, $user);
     }
 
-    private static function buildBranches(Collection $all, ?int $parentId): array
+    private static function isDirectlyVisible(Folder $folder, User $user): bool
     {
-        return $all->where('parent_id', $parentId)->map(function (Folder $folder) use ($all) {
+        if ($user->role === Role::Viewer) {
+            return ! $folder->is_private;
+        }
+
+        return ! $folder->is_private || $folder->user_id === $user->id;
+    }
+
+    private static function buildBranches(Collection $all, ?int $parentId, User $user): array
+    {
+        return $all->where('parent_id', $parentId)->map(function (Folder $folder) use ($all, $user) {
+            $children = static::buildBranches($all, $folder->id, $user);
+            $notes = $folder->notes->map(fn (Note $n) => [
+                'id' => $n->id,
+                'title' => $n->title,
+                'slug' => $n->slug,
+                'is_private' => (bool) $n->is_private,
+                'user_id' => $n->user_id,
+                'updated_at' => $n->updated_at?->toIso8601String(),
+            ])->values()->all();
+
+            $isOwner = $folder->user_id === $user->id;
+            if (! $isOwner && empty($notes) && empty($children)) {
+                return null;
+            }
+
             return [
                 'id' => $folder->id,
                 'name' => $folder->name,
                 'slug' => $folder->slug,
                 'parent_id' => $folder->parent_id,
-                'notes' => $folder->notes->map(fn (Note $n) => [
-                    'id' => $n->id,
-                    'title' => $n->title,
-                    'slug' => $n->slug,
-                    'is_private' => (bool) $n->is_private,
-                    'user_id' => $n->user_id,
-                    'updated_at' => $n->updated_at?->toIso8601String(),
-                ])->values()->all(),
-                'children' => static::buildBranches($all, $folder->id),
+                'is_private' => (bool) $folder->is_private,
+                'user_id' => $folder->user_id,
+                'notes' => $notes,
+                'children' => $children,
             ];
-        })->values()->all();
+        })->filter()->values()->all();
     }
 }
