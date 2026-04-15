@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use App\Models\Folder;
+use App\Models\Note;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -36,14 +38,33 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+                'role' => $user?->role?->value,
+                // canHints is advisory — authoritative checks remain in policies.
+                // Use these to hide UI affordances, never to gate server state.
+                'canHints' => $user ? $this->canHints($user) : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'folderTree' => fn () => $request->user() ? Folder::tree($request->user()) : [],
+            'folderTree' => fn () => $user ? Folder::tree($user) : [],
+        ];
+    }
+
+    /**
+     * @return array<string, bool>
+     */
+    private function canHints(User $user): array
+    {
+        return [
+            'createNotes' => $user->can('create', Note::class),
+            'createFolders' => $user->can('create', Folder::class),
+            'moderate' => $user->role?->canModerate() ?? false,
+            'manageUsers' => $user->role?->isAdmin() ?? false,
         ];
     }
 }

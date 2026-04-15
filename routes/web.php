@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\NoteController;
@@ -19,6 +20,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('folders', FolderController::class)->except(['show', 'create', 'edit']);
     Route::get('/api/folder-tree', [FolderController::class, 'tree'])->name('folders.tree');
+
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::patch('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+    });
 });
 
 require __DIR__.'/settings.php';
