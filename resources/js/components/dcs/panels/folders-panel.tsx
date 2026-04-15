@@ -11,7 +11,9 @@ export function FoldersPanel() {
     const activeNoteId =
         typeof window !== 'undefined'
             ? (() => {
-                  const match = window.location.pathname.match(/\/notes\/(\d+)/);
+                  const match =
+                      window.location.pathname.match(/\/notes\/(\d+)/);
+
                   return match ? parseInt(match[1], 10) : null;
               })()
             : null;
@@ -23,10 +25,13 @@ export function FoldersPanel() {
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         const trimmed = name.trim();
+
         if (!trimmed) {
             setCreating(false);
+
             return;
         }
+
         router.post(
             '/folders',
             { name: trimmed, parent_id: null, is_private: isPrivate },
@@ -48,24 +53,30 @@ export function FoldersPanel() {
                     href="/dashboard"
                     className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-[var(--scheme-accent-subtle)]"
                 >
-                    <LayoutGrid className="h-4 w-4" style={{ color: 'var(--scheme-fg-muted)' }} />
+                    <LayoutGrid
+                        className="h-4 w-4"
+                        style={{ color: 'var(--scheme-fg-muted)' }}
+                    />
                     Dashboard
                 </Link>
                 <Link
                     href="/notes/create"
                     className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-[var(--scheme-accent-subtle)]"
                 >
-                    <FilePlus className="h-4 w-4" style={{ color: 'var(--scheme-fg-muted)' }} />
+                    <FilePlus
+                        className="h-4 w-4"
+                        style={{ color: 'var(--scheme-fg-muted)' }}
+                    />
                     New note
                 </Link>
             </div>
 
             <div
-                className="mt-1 flex items-center justify-between border-t px-4 pb-1 pt-2"
+                className="mt-1 flex items-center justify-between border-t px-4 pt-2 pb-1"
                 style={{ borderColor: 'var(--glass-border)' }}
             >
                 <span
-                    className="text-xs font-medium uppercase tracking-wider"
+                    className="text-xs font-medium tracking-wider uppercase"
                     style={{ color: 'var(--scheme-fg-muted)' }}
                 >
                     Folders
@@ -82,7 +93,10 @@ export function FoldersPanel() {
             </div>
 
             {creating && (
-                <form onSubmit={submit} className="flex flex-col gap-1 px-3 pb-2">
+                <form
+                    onSubmit={submit}
+                    className="flex flex-col gap-1 px-3 pb-2"
+                >
                     <input
                         autoFocus
                         value={name}

@@ -62,7 +62,8 @@
     --color-sidebar-ring: var(--sidebar-ring);
 }
 
-:root, .dark {
+:root,
+.dark {
     --background: var(--scheme-bg-primary);
     --foreground: var(--scheme-fg-primary);
     --card: var(--scheme-bg-secondary);

@@ -1,5 +1,6 @@
 import { Moon, Sun } from 'lucide-react';
-import { useTheme, type ColorScheme } from '@/contexts/theme-context';
+import { useTheme } from '@/contexts/theme-context';
+import type { ColorScheme } from '@/contexts/theme-context';
 
 const schemes: { id: ColorScheme; label: string; hue: number }[] = [
     { id: 'crimson', label: 'Crimson', hue: 30 },
@@ -10,14 +11,22 @@ const schemes: { id: ColorScheme; label: string; hue: number }[] = [
 ];
 
 export function AppearancePanel() {
-    const { theme, scheme, carouselMode, toggleTheme, setScheme, setCarouselMode, sidebarWidth, setSidebarWidth } =
-        useTheme();
+    const {
+        theme,
+        scheme,
+        carouselMode,
+        toggleTheme,
+        setScheme,
+        setCarouselMode,
+        sidebarWidth,
+        setSidebarWidth,
+    } = useTheme();
 
     return (
         <div className="flex flex-col gap-5 px-4 py-4 text-sm">
             <div>
                 <h4
-                    className="mb-2 text-xs font-bold uppercase tracking-wider"
+                    className="mb-2 text-xs font-bold tracking-wider uppercase"
                     style={{ color: 'var(--scheme-fg-muted)' }}
                 >
                     Theme
@@ -28,10 +37,17 @@ export function AppearancePanel() {
                     style={{ borderColor: 'var(--glass-border)' }}
                 >
                     <span className="flex items-center gap-2">
-                        {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                        {theme === 'dark' ? (
+                            <Moon className="h-4 w-4" />
+                        ) : (
+                            <Sun className="h-4 w-4" />
+                        )}
                         {theme === 'dark' ? 'Dark' : 'Light'}
                     </span>
-                    <span className="text-xs" style={{ color: 'var(--scheme-fg-muted)' }}>
+                    <span
+                        className="text-xs"
+                        style={{ color: 'var(--scheme-fg-muted)' }}
+                    >
                         Toggle
                     </span>
                 </button>
@@ -39,7 +55,7 @@ export function AppearancePanel() {
 
             <div>
                 <h4
-                    className="mb-2 text-xs font-bold uppercase tracking-wider"
+                    className="mb-2 text-xs font-bold tracking-wider uppercase"
                     style={{ color: 'var(--scheme-fg-muted)' }}
                 >
                     Colour scheme
@@ -52,8 +68,13 @@ export function AppearancePanel() {
                             className="flex flex-col items-center gap-1 rounded-md border p-2 text-xs transition-all"
                             style={{
                                 borderColor:
-                                    scheme === s.id ? 'var(--scheme-accent)' : 'var(--glass-border)',
-                                background: scheme === s.id ? 'var(--scheme-accent-subtle)' : 'transparent',
+                                    scheme === s.id
+                                        ? 'var(--scheme-accent)'
+                                        : 'var(--glass-border)',
+                                background:
+                                    scheme === s.id
+                                        ? 'var(--scheme-accent-subtle)'
+                                        : 'transparent',
                                 minWidth: 60,
                             }}
                         >
@@ -71,7 +92,7 @@ export function AppearancePanel() {
 
             <div>
                 <h4
-                    className="mb-2 text-xs font-bold uppercase tracking-wider"
+                    className="mb-2 text-xs font-bold tracking-wider uppercase"
                     style={{ color: 'var(--scheme-fg-muted)' }}
                 >
                     Panel transition
@@ -81,9 +102,14 @@ export function AppearancePanel() {
                         onClick={() => setCarouselMode('slide')}
                         className="flex-1 rounded-md border px-3 py-1.5 text-xs"
                         style={{
-                            borderColor: carouselMode === 'slide' ? 'var(--scheme-accent)' : 'var(--glass-border)',
+                            borderColor:
+                                carouselMode === 'slide'
+                                    ? 'var(--scheme-accent)'
+                                    : 'var(--glass-border)',
                             background:
-                                carouselMode === 'slide' ? 'var(--scheme-accent-subtle)' : 'transparent',
+                                carouselMode === 'slide'
+                                    ? 'var(--scheme-accent-subtle)'
+                                    : 'transparent',
                         }}
                     >
                         Slide
@@ -92,9 +118,14 @@ export function AppearancePanel() {
                         onClick={() => setCarouselMode('fade')}
                         className="flex-1 rounded-md border px-3 py-1.5 text-xs"
                         style={{
-                            borderColor: carouselMode === 'fade' ? 'var(--scheme-accent)' : 'var(--glass-border)',
+                            borderColor:
+                                carouselMode === 'fade'
+                                    ? 'var(--scheme-accent)'
+                                    : 'var(--glass-border)',
                             background:
-                                carouselMode === 'fade' ? 'var(--scheme-accent-subtle)' : 'transparent',
+                                carouselMode === 'fade'
+                                    ? 'var(--scheme-accent-subtle)'
+                                    : 'transparent',
                         }}
                     >
                         Fade
@@ -104,7 +135,7 @@ export function AppearancePanel() {
 
             <div>
                 <h4
-                    className="mb-2 text-xs font-bold uppercase tracking-wider"
+                    className="mb-2 text-xs font-bold tracking-wider uppercase"
                     style={{ color: 'var(--scheme-fg-muted)' }}
                 >
                     Sidebar width ({sidebarWidth}px)
@@ -115,7 +146,9 @@ export function AppearancePanel() {
                     max={400}
                     step={10}
                     value={sidebarWidth}
-                    onChange={(e) => setSidebarWidth(parseInt(e.target.value, 10))}
+                    onChange={(e) =>
+                        setSidebarWidth(parseInt(e.target.value, 10))
+                    }
                     className="scheme-range w-full"
                 />
             </div>

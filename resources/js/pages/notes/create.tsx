@@ -27,7 +27,9 @@ export default function CreateNote({ folder_id, folders }: Props) {
                 <h1 className="mb-6 text-2xl font-semibold">New note</h1>
                 <form onSubmit={submit} className="flex flex-col gap-4">
                     <div>
-                        <label className="mb-1 block text-sm font-medium">Title</label>
+                        <label className="mb-1 block text-sm font-medium">
+                            Title
+                        </label>
                         <input
                             autoFocus
                             value={data.title}
@@ -36,14 +38,25 @@ export default function CreateNote({ folder_id, folders }: Props) {
                             placeholder="Note title"
                             required
                         />
-                        {errors.title && <p className="mt-1 text-sm text-destructive">{errors.title}</p>}
+                        {errors.title && (
+                            <p className="mt-1 text-sm text-destructive">
+                                {errors.title}
+                            </p>
+                        )}
                     </div>
                     <div>
-                        <label className="mb-1 block text-sm font-medium">Folder</label>
+                        <label className="mb-1 block text-sm font-medium">
+                            Folder
+                        </label>
                         <select
                             value={data.folder_id ?? ''}
                             onChange={(e) =>
-                                setData('folder_id', e.target.value ? parseInt(e.target.value, 10) : null)
+                                setData(
+                                    'folder_id',
+                                    e.target.value
+                                        ? parseInt(e.target.value, 10)
+                                        : null,
+                                )
                             }
                             className="w-full rounded-md border bg-background px-3 py-2"
                         >
@@ -59,7 +72,9 @@ export default function CreateNote({ folder_id, folders }: Props) {
                         <input
                             type="checkbox"
                             checked={data.is_private}
-                            onChange={(e) => setData('is_private', e.target.checked)}
+                            onChange={(e) =>
+                                setData('is_private', e.target.checked)
+                            }
                         />
                         Private (only visible to me)
                     </label>
@@ -67,7 +82,11 @@ export default function CreateNote({ folder_id, folders }: Props) {
                         <Button type="submit" disabled={processing}>
                             Create
                         </Button>
-                        <Button type="button" variant="outline" onClick={() => router.visit('/dashboard')}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => router.visit('/dashboard')}
+                        >
                             Cancel
                         </Button>
                     </div>

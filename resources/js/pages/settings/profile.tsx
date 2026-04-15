@@ -18,7 +18,10 @@ export default function Profile({
 }) {
     const { auth } = usePage().props;
     const user = auth.user;
-    if (!user) return null;
+
+    if (!user) {
+        return null;
+    }
 
     return (
         <>

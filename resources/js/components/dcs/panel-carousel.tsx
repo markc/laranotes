@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef } from 'react';
+import type { ReactNode } from 'react';
 import { useTheme } from '@/contexts/theme-context';
 
 type PanelDef = {
@@ -15,7 +16,13 @@ type Props = {
     headerSlot?: ReactNode;
 };
 
-export default function PanelCarousel({ panels, activePanel, onPanelChange, side, headerSlot }: Props) {
+export default function PanelCarousel({
+    panels,
+    activePanel,
+    onPanelChange,
+    side,
+    headerSlot,
+}: Props) {
     const { carouselMode } = useTheme();
     const len = panels.length;
     const prev = (activePanel - 1 + len) % len;
@@ -26,20 +33,29 @@ export default function PanelCarousel({ panels, activePanel, onPanelChange, side
 
     useEffect(() => {
         const track = trackRef.current;
-        if (!track) return;
+
+        if (!track) {
+            return;
+        }
+
         const panelEls = panelRefs.current;
 
         if (prevModeRef.current !== carouselMode) {
             track.style.transition = 'none';
             panelEls.forEach((p) => {
-                if (p) p.style.transition = 'none';
+                if (p) {
+                    p.style.transition = 'none';
+                }
             });
 
             if (carouselMode === 'fade') {
                 track.style.display = 'grid';
                 track.style.transform = '';
                 panelEls.forEach((p, i) => {
-                    if (!p) return;
+                    if (!p) {
+                        return;
+                    }
+
                     p.style.gridArea = '1 / 1';
                     p.style.width = '';
                     p.style.flexShrink = '';
@@ -50,7 +66,10 @@ export default function PanelCarousel({ panels, activePanel, onPanelChange, side
                 track.style.display = 'flex';
                 track.style.transform = `translateX(-${activePanel * 100}%)`;
                 panelEls.forEach((p) => {
-                    if (!p) return;
+                    if (!p) {
+                        return;
+                    }
+
                     p.style.gridArea = '';
                     p.style.width = '100%';
                     p.style.flexShrink = '0';
@@ -63,7 +82,9 @@ export default function PanelCarousel({ panels, activePanel, onPanelChange, side
             void track.offsetHeight;
             track.style.transition = '';
             panelEls.forEach((p) => {
-                if (p) p.style.transition = '';
+                if (p) {
+                    p.style.transition = '';
+                }
             });
 
             prevModeRef.current = carouselMode;
@@ -72,12 +93,19 @@ export default function PanelCarousel({ panels, activePanel, onPanelChange, side
 
     useEffect(() => {
         const track = trackRef.current;
-        if (!track) return;
+
+        if (!track) {
+            return;
+        }
+
         const panelEls = panelRefs.current;
 
         if (carouselMode === 'fade') {
             panelEls.forEach((p, i) => {
-                if (!p) return;
+                if (!p) {
+                    return;
+                }
+
                 p.style.opacity = i === activePanel ? '1' : '0';
                 p.style.pointerEvents = i === activePanel ? 'auto' : 'none';
             });
@@ -108,7 +136,10 @@ export default function PanelCarousel({ panels, activePanel, onPanelChange, side
                             width: i === activePanel ? 24 : 9,
                             height: 9,
                             borderRadius: 5,
-                            backgroundColor: i === activePanel ? 'var(--scheme-accent)' : 'var(--scheme-fg-muted)',
+                            backgroundColor:
+                                i === activePanel
+                                    ? 'var(--scheme-accent)'
+                                    : 'var(--scheme-fg-muted)',
                             opacity: i === activePanel ? 1 : 0.4,
                         }}
                         aria-label={p.label}
@@ -129,8 +160,10 @@ export default function PanelCarousel({ panels, activePanel, onPanelChange, side
     return (
         <>
             <div
-                className={`flex h-[var(--topnav-height)] shrink-0 items-center border-b gap-1 ${
-                    side === 'left' ? 'justify-start pl-[3.75rem]' : 'justify-end pr-[3.75rem]'
+                className={`flex h-[var(--topnav-height)] shrink-0 items-center gap-1 border-b ${
+                    side === 'left'
+                        ? 'justify-start pl-[3.75rem]'
+                        : 'justify-end pr-[3.75rem]'
                 }`}
                 style={{ borderColor: 'var(--glass-border)' }}
             >
@@ -145,13 +178,18 @@ export default function PanelCarousel({ panels, activePanel, onPanelChange, side
                     className="h-full"
                     style={{
                         display: isFade ? 'grid' : 'flex',
-                        transition: isFade ? 'none' : 'transform 0.3s ease-in-out',
-                        transform: isFade ? undefined : `translateX(-${activePanel * 100}%)`,
+                        transition: isFade
+                            ? 'none'
+                            : 'transform 0.3s ease-in-out',
+                        transform: isFade
+                            ? undefined
+                            : `translateX(-${activePanel * 100}%)`,
                     }}
                 >
                     {panels.map((p, i) => {
                         const displayName = p.label.replace(/^[LR]\d+:\s*/, '');
                         const active = i === activePanel;
+
                         return (
                             <div
                                 key={p.label}
@@ -164,8 +202,11 @@ export default function PanelCarousel({ panels, activePanel, onPanelChange, side
                                         ? {
                                               gridArea: '1 / 1',
                                               opacity: active ? 1 : 0,
-                                              pointerEvents: active ? 'auto' : 'none',
-                                              transition: 'opacity 0.3s ease-in-out',
+                                              pointerEvents: active
+                                                  ? 'auto'
+                                                  : 'none',
+                                              transition:
+                                                  'opacity 0.3s ease-in-out',
                                           }
                                         : {
                                               width: '100%',
@@ -179,18 +220,23 @@ export default function PanelCarousel({ panels, activePanel, onPanelChange, side
                                     className="shrink-0 border-b px-4 py-2 text-center"
                                     style={{
                                         borderColor: 'var(--glass-border)',
-                                        background: 'color-mix(in oklch, var(--scheme-accent) 4%, transparent)',
+                                        background:
+                                            'color-mix(in oklch, var(--scheme-accent) 4%, transparent)',
                                     }}
                                     title={p.label}
                                 >
                                     <h2
                                         className="text-sm font-bold"
-                                        style={{ color: 'var(--scheme-fg-primary)' }}
+                                        style={{
+                                            color: 'var(--scheme-fg-primary)',
+                                        }}
                                     >
                                         {displayName}
                                     </h2>
                                 </div>
-                                <div className="flex-1 overflow-y-auto">{p.content}</div>
+                                <div className="flex-1 overflow-y-auto">
+                                    {p.content}
+                                </div>
                             </div>
                         );
                     })}

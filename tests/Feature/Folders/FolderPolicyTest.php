@@ -29,25 +29,25 @@ class FolderPolicyTest extends TestCase
     public static function matrix(): array
     {
         return [
-            'admin own-pub'        => ['admin',     'own-pub',   true,  true,  true],
-            'admin own-priv'       => ['admin',     'own-priv',  true,  true,  true],
-            'admin other-pub'      => ['admin',     'other-pub', true,  true,  true],
-            'admin other-priv'     => ['admin',     'other-priv', true, false, false],
+            'admin own-pub' => ['admin',     'own-pub',   true,  true,  true],
+            'admin own-priv' => ['admin',     'own-priv',  true,  true,  true],
+            'admin other-pub' => ['admin',     'other-pub', true,  true,  true],
+            'admin other-priv' => ['admin',     'other-priv', true, false, false],
 
-            'moderator own-pub'    => ['moderator', 'own-pub',   true,  true,  true],
-            'moderator own-priv'   => ['moderator', 'own-priv',  true,  true,  true],
-            'moderator other-pub'  => ['moderator', 'other-pub', true,  true,  true],
+            'moderator own-pub' => ['moderator', 'own-pub',   true,  true,  true],
+            'moderator own-priv' => ['moderator', 'own-priv',  true,  true,  true],
+            'moderator other-pub' => ['moderator', 'other-pub', true,  true,  true],
             'moderator other-priv' => ['moderator', 'other-priv', false, false, false],
 
-            'user own-pub'         => ['user',      'own-pub',   true,  true,  true],
-            'user own-priv'        => ['user',      'own-priv',  true,  true,  true],
-            'user other-pub'       => ['user',      'other-pub', true,  false, false],
-            'user other-priv'      => ['user',      'other-priv', false, false, false],
+            'user own-pub' => ['user',      'own-pub',   true,  true,  true],
+            'user own-priv' => ['user',      'own-priv',  true,  true,  true],
+            'user other-pub' => ['user',      'other-pub', true,  false, false],
+            'user other-priv' => ['user',      'other-priv', false, false, false],
 
-            'viewer own-pub'       => ['viewer',    'own-pub',   true,  false, false],
-            'viewer own-priv'      => ['viewer',    'own-priv',  true,  false, false],
-            'viewer other-pub'     => ['viewer',    'other-pub', true,  false, false],
-            'viewer other-priv'    => ['viewer',    'other-priv', false, false, false],
+            'viewer own-pub' => ['viewer',    'own-pub',   true,  false, false],
+            'viewer own-priv' => ['viewer',    'own-priv',  true,  false, false],
+            'viewer other-pub' => ['viewer',    'other-pub', true,  false, false],
+            'viewer other-priv' => ['viewer',    'other-priv', false, false, false],
         ];
     }
 
@@ -58,15 +58,15 @@ class FolderPolicyTest extends TestCase
         $other = $this->makeUser('user');
 
         [$owner, $private] = match ($shape) {
-            'own-pub'    => [$actor, false],
-            'own-priv'   => [$actor, true],
-            'other-pub'  => [$other, false],
+            'own-pub' => [$actor, false],
+            'own-priv' => [$actor, true],
+            'other-pub' => [$other, false],
             'other-priv' => [$other, true],
         };
 
         $folder = $this->makeFolder($owner, $private);
 
-        $this->assertSame($view,   $actor->can('view',   $folder), "view: $role/$shape");
+        $this->assertSame($view, $actor->can('view', $folder), "view: $role/$shape");
         $this->assertSame($update, $actor->can('update', $folder), "update: $role/$shape");
         $this->assertSame($delete, $actor->can('delete', $folder), "delete: $role/$shape");
     }
@@ -74,10 +74,10 @@ class FolderPolicyTest extends TestCase
     public static function createMatrix(): array
     {
         return [
-            'admin'     => ['admin',     true],
+            'admin' => ['admin',     true],
             'moderator' => ['moderator', true],
-            'user'      => ['user',      true],
-            'viewer'    => ['viewer',    false],
+            'user' => ['user',      true],
+            'viewer' => ['viewer',    false],
         ];
     }
 

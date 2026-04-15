@@ -3,7 +3,6 @@ import { FilePlus, FolderPlus, LayoutGrid, NotebookPen } from 'lucide-react';
 import { useState } from 'react';
 import { FolderTree } from '@/components/folder-tree';
 import { NavUser } from '@/components/nav-user';
-import { Button } from '@/components/ui/button';
 import {
     Sidebar,
     SidebarContent,
@@ -21,7 +20,9 @@ export function AppSidebar() {
     const activeNoteId =
         typeof window !== 'undefined'
             ? (() => {
-                  const match = window.location.pathname.match(/\/notes\/(\d+)/);
+                  const match =
+                      window.location.pathname.match(/\/notes\/(\d+)/);
+
                   return match ? parseInt(match[1], 10) : null;
               })()
             : null;
@@ -32,10 +33,13 @@ export function AppSidebar() {
     const submitNewFolder = (e: React.FormEvent) => {
         e.preventDefault();
         const name = newFolderName.trim();
+
         if (!name) {
             setCreatingFolder(false);
+
             return;
         }
+
         router.post(
             '/folders',
             { name, parent_id: null },
@@ -60,7 +64,9 @@ export function AppSidebar() {
                                     <NotebookPen className="size-4" />
                                 </div>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">Laranotes</span>
+                                    <span className="truncate font-semibold">
+                                        Laranotes
+                                    </span>
                                     <span className="truncate text-xs text-muted-foreground">
                                         Markdown notes
                                     </span>
@@ -91,8 +97,8 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                 </SidebarMenu>
 
-                <div className="mt-2 flex items-center justify-between px-4 pb-1 pt-2">
-                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <div className="mt-2 flex items-center justify-between px-4 pt-2 pb-1">
+                    <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
                         Folders
                     </span>
                     <button
@@ -112,7 +118,9 @@ export function AppSidebar() {
                             value={newFolderName}
                             onChange={(e) => setNewFolderName(e.target.value)}
                             onBlur={() => {
-                                if (!newFolderName.trim()) setCreatingFolder(false);
+                                if (!newFolderName.trim()) {
+                                    setCreatingFolder(false);
+                                }
                             }}
                             placeholder="Folder name"
                             className="w-full rounded-md border border-sidebar-border bg-sidebar px-2 py-1 text-sm outline-none focus:border-primary"

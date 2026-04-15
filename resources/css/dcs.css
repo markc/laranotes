@@ -160,14 +160,19 @@
 
 /* Sidebar transitions */
 .sidebar-slide {
-    transition: translate 300ms cubic-bezier(0.33, 1, 0.68, 1),
-                margin 300ms cubic-bezier(0.33, 1, 0.68, 1);
+    transition:
+        translate 300ms cubic-bezier(0.33, 1, 0.68, 1),
+        margin 300ms cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 /* Page content fade-in on navigation */
 @keyframes page-fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 .page-fade-in {
     animation: page-fade-in 200ms ease-out;
@@ -185,7 +190,13 @@
     transition: top 300ms cubic-bezier(0.33, 1, 0.68, 1);
     z-index: 1;
 }
-.sidebar-left::after { right: 0; }
-.sidebar-right::after { left: 0; }
+.sidebar-left::after {
+    right: 0;
+}
+.sidebar-right::after {
+    left: 0;
+}
 body.scrolled .sidebar-left::after,
-body.scrolled .sidebar-right::after { top: 0; }
+body.scrolled .sidebar-right::after {
+    top: 0;
+}

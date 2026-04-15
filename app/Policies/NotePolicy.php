@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Enums\Role;
 use App\Models\Note;
 use App\Models\User;
 

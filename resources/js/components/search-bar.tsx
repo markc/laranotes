@@ -13,18 +13,23 @@ export function SearchBar() {
 
     useEffect(() => {
         if (!debounced.trim()) {
-            setResults([]);
+            // Stale results stay in state but are hidden by the
+            // {open && query.trim() && ...} guard in the render path.
             return;
         }
+
         let cancelled = false;
         fetch(`/notes/search?q=${encodeURIComponent(debounced)}`, {
             headers: { Accept: 'application/json' },
         })
             .then((r) => r.json())
             .then((data) => {
-                if (!cancelled) setResults(data.results ?? []);
+                if (!cancelled) {
+                    setResults(data.results ?? []);
+                }
             })
             .catch(() => {});
+
         return () => {
             cancelled = true;
         };
@@ -32,11 +37,15 @@ export function SearchBar() {
 
     useEffect(() => {
         const handler = (e: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+            if (
+                containerRef.current &&
+                !containerRef.current.contains(e.target as Node)
+            ) {
                 setOpen(false);
             }
         };
         document.addEventListener('mousedown', handler);
+
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
@@ -50,6 +59,7 @@ export function SearchBar() {
             }
         };
         window.addEventListener('keydown', handler);
+
         return () => window.removeEventListener('keydown', handler);
     }, []);
 
@@ -71,7 +81,7 @@ export function SearchBar() {
             </div>
 
             {open && query.trim() && (
-                <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-[24rem] overflow-auto rounded-md border bg-popover shadow-lg">
+                <div className="absolute top-full right-0 left-0 z-50 mt-1 max-h-[24rem] overflow-auto rounded-md border bg-popover shadow-lg">
                     {results.length === 0 ? (
                         <div className="px-3 py-4 text-center text-sm text-muted-foreground">
                             No results
@@ -83,12 +93,16 @@ export function SearchBar() {
                                     <Link
                                         href={`/notes/${r.id}/edit`}
                                         onClick={() => setOpen(false)}
-                                        className="block border-b px-3 py-2 text-sm hover:bg-accent last:border-b-0"
+                                        className="block border-b px-3 py-2 text-sm last:border-b-0 hover:bg-accent"
                                     >
                                         <div className="flex items-center gap-2">
                                             <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                                            <span className="truncate font-medium">{r.title}</span>
-                                            {r.is_private && <Lock className="h-3 w-3 text-muted-foreground" />}
+                                            <span className="truncate font-medium">
+                                                {r.title}
+                                            </span>
+                                            {r.is_private && (
+                                                <Lock className="h-3 w-3 text-muted-foreground" />
+                                            )}
                                             {r.folder && (
                                                 <span className="ml-auto shrink-0 text-xs text-muted-foreground">
                                                     {r.folder.name}

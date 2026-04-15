@@ -11,18 +11,24 @@ export function SearchPanel() {
 
     useEffect(() => {
         if (!debounced.trim()) {
-            setResults([]);
+            // Stale results are masked by the `query.trim() !== ''` render
+            // guard below, so clearing state here would trigger an unnecessary
+            // render and fall foul of react-hooks/set-state-in-effect.
             return;
         }
+
         let cancelled = false;
         fetch(`/notes/search?q=${encodeURIComponent(debounced)}`, {
             headers: { Accept: 'application/json' },
         })
             .then((r) => r.json())
             .then((data) => {
-                if (!cancelled) setResults(data.results ?? []);
+                if (!cancelled) {
+                    setResults(data.results ?? []);
+                }
             })
             .catch(() => {});
+
         return () => {
             cancelled = true;
         };
@@ -35,7 +41,10 @@ export function SearchPanel() {
                     className="flex items-center gap-2 rounded-md border bg-background px-2 py-1.5"
                     style={{ borderColor: 'var(--glass-border)' }}
                 >
-                    <Search className="h-4 w-4" style={{ color: 'var(--scheme-fg-muted)' }} />
+                    <Search
+                        className="h-4 w-4"
+                        style={{ color: 'var(--scheme-fg-muted)' }}
+                    />
                     <input
                         autoFocus
                         type="text"
@@ -64,7 +73,7 @@ export function SearchPanel() {
                         No results
                     </p>
                 )}
-                <ul className="flex flex-col">
+                <ul className="flex flex-col" hidden={query.trim() === ''}>
                     {results.map((r) => (
                         <li key={r.id}>
                             <Link
@@ -72,17 +81,41 @@ export function SearchPanel() {
                                 className="block rounded-md px-2 py-2 text-sm hover:bg-[var(--scheme-accent-subtle)]"
                             >
                                 <div className="flex items-center gap-1.5">
-                                    <FileText className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--scheme-fg-muted)' }} />
-                                    <span className="truncate font-medium">{r.title}</span>
-                                    {r.is_private && <Lock className="h-3 w-3 shrink-0" style={{ color: 'var(--scheme-fg-muted)' }} />}
+                                    <FileText
+                                        className="h-3.5 w-3.5 shrink-0"
+                                        style={{
+                                            color: 'var(--scheme-fg-muted)',
+                                        }}
+                                    />
+                                    <span className="truncate font-medium">
+                                        {r.title}
+                                    </span>
+                                    {r.is_private && (
+                                        <Lock
+                                            className="h-3 w-3 shrink-0"
+                                            style={{
+                                                color: 'var(--scheme-fg-muted)',
+                                            }}
+                                        />
+                                    )}
                                 </div>
                                 {r.folder && (
-                                    <div className="mt-0.5 pl-5 text-xs" style={{ color: 'var(--scheme-fg-muted)' }}>
+                                    <div
+                                        className="mt-0.5 pl-5 text-xs"
+                                        style={{
+                                            color: 'var(--scheme-fg-muted)',
+                                        }}
+                                    >
                                         {r.folder.name}
                                     </div>
                                 )}
                                 {r.snippet && (
-                                    <div className="mt-0.5 line-clamp-2 pl-5 text-xs" style={{ color: 'var(--scheme-fg-muted)' }}>
+                                    <div
+                                        className="mt-0.5 line-clamp-2 pl-5 text-xs"
+                                        style={{
+                                            color: 'var(--scheme-fg-muted)',
+                                        }}
+                                    >
                                         {r.snippet}
                                     </div>
                                 )}

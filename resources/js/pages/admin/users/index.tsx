@@ -23,11 +23,18 @@ type Props = {
 
 export default function AdminUsersIndex({ users, roles }: Props) {
     const changeRole = (user: UserRow, role: Role) => {
-        router.patch(`/admin/users/${user.id}`, { role }, { preserveScroll: true });
+        router.patch(
+            `/admin/users/${user.id}`,
+            { role },
+            { preserveScroll: true },
+        );
     };
 
     const deleteUser = (user: UserRow) => {
-        if (!window.confirm(`Delete ${user.name}?`)) return;
+        if (!window.confirm(`Delete ${user.name}?`)) {
+            return;
+        }
+
         router.delete(`/admin/users/${user.id}`, { preserveScroll: true });
     };
 
@@ -37,7 +44,7 @@ export default function AdminUsersIndex({ users, roles }: Props) {
             <div className="mx-auto max-w-5xl px-6 py-8">
                 <h1 className="mb-6 text-2xl font-semibold">Users</h1>
                 <table className="w-full text-sm">
-                    <thead className="text-left text-xs uppercase text-muted-foreground">
+                    <thead className="text-left text-xs text-muted-foreground uppercase">
                         <tr>
                             <th className="py-2">Name</th>
                             <th className="py-2">Email</th>
@@ -50,11 +57,18 @@ export default function AdminUsersIndex({ users, roles }: Props) {
                         {users.data.map((user) => (
                             <tr key={user.id} className="border-t">
                                 <td className="py-2">{user.name}</td>
-                                <td className="py-2 text-muted-foreground">{user.email}</td>
+                                <td className="py-2 text-muted-foreground">
+                                    {user.email}
+                                </td>
                                 <td className="py-2">
                                     <select
                                         value={user.role ?? 'user'}
-                                        onChange={(e) => changeRole(user, e.target.value as Role)}
+                                        onChange={(e) =>
+                                            changeRole(
+                                                user,
+                                                e.target.value as Role,
+                                            )
+                                        }
                                         className="rounded border bg-background px-2 py-1"
                                     >
                                         {roles.map((r) => (

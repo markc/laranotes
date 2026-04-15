@@ -1,4 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from 'react';
+import type { ReactNode } from 'react';
 
 export type ColorScheme = 'crimson' | 'stone' | 'ocean' | 'forest' | 'sunset';
 export type ThemeMode = 'light' | 'dark';
@@ -48,11 +55,19 @@ function clampPanel(n: number, max: number): number {
 }
 
 function loadState(): ThemeState {
-    if (typeof window === 'undefined') return defaults;
+    if (typeof window === 'undefined') {
+        return defaults;
+    }
+
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return defaults;
+
+        if (!raw) {
+            return defaults;
+        }
+
         const parsed = JSON.parse(raw);
+
         return {
             theme: parsed.theme || defaults.theme,
             scheme: parsed.scheme || defaults.scheme,
@@ -100,7 +115,10 @@ function applyThemeToDOM(theme: ThemeMode) {
 
 function applySchemeToDOM(scheme: ColorScheme) {
     const html = document.documentElement;
-    ['stone', 'ocean', 'forest', 'sunset'].forEach((s) => html.classList.remove(`scheme-${s}`));
+    ['stone', 'ocean', 'forest', 'sunset'].forEach((s) =>
+        html.classList.remove(`scheme-${s}`),
+    );
+
     if (scheme !== 'crimson') {
         html.classList.add(`scheme-${scheme}`);
     }
@@ -115,7 +133,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         applyThemeToDOM(state.theme);
         applySchemeToDOM(state.scheme);
-        document.documentElement.style.setProperty('--sidebar-width', `${state.sidebarWidth}px`);
+        document.documentElement.style.setProperty(
+            '--sidebar-width',
+            `${state.sidebarWidth}px`,
+        );
         saveState(state);
     }, [state]);
 
@@ -131,11 +152,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
             }
         };
         mq.addEventListener('change', handler);
+
         return () => mq.removeEventListener('change', handler);
     }, []);
 
     const toggleTheme = useCallback(() => {
-        setState((prev) => ({ ...prev, theme: prev.theme === 'dark' ? 'light' : 'dark' }));
+        setState((prev) => ({
+            ...prev,
+            theme: prev.theme === 'dark' ? 'light' : 'dark',
+        }));
     }, []);
 
     const setScheme = useCallback((scheme: ColorScheme) => {
@@ -149,9 +174,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const toggleSidebar = useCallback((side: 'left' | 'right') => {
         setState((prev) => {
             const current = prev[side];
+
             if (current.open) {
-                return { ...prev, [side]: { ...current, open: false, pinned: false } };
+                return {
+                    ...prev,
+                    [side]: { ...current, open: false, pinned: false },
+                };
             }
+
             return { ...prev, [side]: { ...current, open: true } };
         });
     }, []);
@@ -160,6 +190,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         setState((prev) => {
             const current = prev[side];
             const pinning = !current.pinned;
+
             return {
                 ...prev,
                 [side]: { ...current, open: pinning, pinned: pinning },
@@ -170,8 +201,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const closeSidebars = useCallback(() => {
         setState((prev) => ({
             ...prev,
-            left: prev.left.pinned ? prev.left : { ...prev.left, open: false, pinned: false },
-            right: prev.right.pinned ? prev.right : { ...prev.right, open: false, pinned: false },
+            left: prev.left.pinned
+                ? prev.left
+                : { ...prev.left, open: false, pinned: false },
+            right: prev.right.pinned
+                ? prev.right
+                : { ...prev.right, open: false, pinned: false },
         }));
     }, []);
 
@@ -183,7 +218,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const setSidebarWidth = useCallback((width: number) => {
-        setState((prev) => ({ ...prev, sidebarWidth: Math.max(220, Math.min(500, width)) }));
+        setState((prev) => ({
+            ...prev,
+            sidebarWidth: Math.max(220, Math.min(500, width)),
+        }));
     }, []);
 
     return (
@@ -209,6 +247,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
 export function useTheme(): ThemeContextValue {
     const ctx = useContext(ThemeContext);
-    if (!ctx) throw new Error('useTheme must be used within ThemeProvider');
+
+    if (!ctx) {
+        throw new Error('useTheme must be used within ThemeProvider');
+    }
+
     return ctx;
 }

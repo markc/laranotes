@@ -34,25 +34,25 @@ class NotePolicyTest extends TestCase
         // [role, shape, view, update, delete]
         // shape: own-pub, own-priv, other-pub, other-priv
         return [
-            'admin own-pub'       => ['admin',     'own-pub',   true,  true,  true],
-            'admin own-priv'      => ['admin',     'own-priv',  true,  true,  true],
-            'admin other-pub'     => ['admin',     'other-pub', true,  true,  true],
-            'admin other-priv'    => ['admin',     'other-priv', true, false, false],
+            'admin own-pub' => ['admin',     'own-pub',   true,  true,  true],
+            'admin own-priv' => ['admin',     'own-priv',  true,  true,  true],
+            'admin other-pub' => ['admin',     'other-pub', true,  true,  true],
+            'admin other-priv' => ['admin',     'other-priv', true, false, false],
 
-            'moderator own-pub'   => ['moderator', 'own-pub',   true,  true,  true],
-            'moderator own-priv'  => ['moderator', 'own-priv',  true,  true,  true],
+            'moderator own-pub' => ['moderator', 'own-pub',   true,  true,  true],
+            'moderator own-priv' => ['moderator', 'own-priv',  true,  true,  true],
             'moderator other-pub' => ['moderator', 'other-pub', true,  true,  true],
             'moderator other-priv' => ['moderator', 'other-priv', false, false, false],
 
-            'user own-pub'        => ['user',      'own-pub',   true,  true,  true],
-            'user own-priv'       => ['user',      'own-priv',  true,  true,  true],
-            'user other-pub'      => ['user',      'other-pub', true,  false, false],
-            'user other-priv'     => ['user',      'other-priv', false, false, false],
+            'user own-pub' => ['user',      'own-pub',   true,  true,  true],
+            'user own-priv' => ['user',      'own-priv',  true,  true,  true],
+            'user other-pub' => ['user',      'other-pub', true,  false, false],
+            'user other-priv' => ['user',      'other-priv', false, false, false],
 
-            'viewer own-pub'      => ['viewer',    'own-pub',   true,  false, false],
-            'viewer own-priv'     => ['viewer',    'own-priv',  true,  false, false],
-            'viewer other-pub'    => ['viewer',    'other-pub', true,  false, false],
-            'viewer other-priv'   => ['viewer',    'other-priv', false, false, false],
+            'viewer own-pub' => ['viewer',    'own-pub',   true,  false, false],
+            'viewer own-priv' => ['viewer',    'own-priv',  true,  false, false],
+            'viewer other-pub' => ['viewer',    'other-pub', true,  false, false],
+            'viewer other-priv' => ['viewer',    'other-priv', false, false, false],
         ];
     }
 
@@ -63,15 +63,15 @@ class NotePolicyTest extends TestCase
         $other = $this->makeUser('user');
 
         [$ownerUser, $private] = match ($shape) {
-            'own-pub'    => [$actor, false],
-            'own-priv'   => [$actor, true],
-            'other-pub'  => [$other, false],
+            'own-pub' => [$actor, false],
+            'own-priv' => [$actor, true],
+            'other-pub' => [$other, false],
             'other-priv' => [$other, true],
         };
 
         $note = $this->makeNote($ownerUser, $private);
 
-        $this->assertSame($view,   $actor->can('view',   $note), "view: $role/$shape");
+        $this->assertSame($view, $actor->can('view', $note), "view: $role/$shape");
         $this->assertSame($update, $actor->can('update', $note), "update: $role/$shape");
         $this->assertSame($delete, $actor->can('delete', $note), "delete: $role/$shape");
     }
@@ -79,10 +79,10 @@ class NotePolicyTest extends TestCase
     public static function createMatrix(): array
     {
         return [
-            'admin'     => ['admin',     true],
+            'admin' => ['admin',     true],
             'moderator' => ['moderator', true],
-            'user'      => ['user',      true],
-            'viewer'    => ['viewer',    false],
+            'user' => ['user',      true],
+            'viewer' => ['viewer',    false],
         ];
     }
 
@@ -98,25 +98,25 @@ class NotePolicyTest extends TestCase
         $viewer = $this->makeUser('viewer');
         $author = $this->makeUser('user');
 
-        $public  = $this->makeNote($author, false);
+        $public = $this->makeNote($author, false);
         $private = $this->makeNote($author, true);
 
         $visible = Note::visibleTo($viewer)->pluck('id')->all();
-        $this->assertContains($public->id,  $visible);
+        $this->assertContains($public->id, $visible);
         $this->assertNotContains($private->id, $visible);
     }
 
     public function test_scope_user_sees_own_private_plus_public(): void
     {
-        $user  = $this->makeUser('user');
+        $user = $this->makeUser('user');
         $other = $this->makeUser('user');
 
-        $ownPriv   = $this->makeNote($user,  true);
-        $otherPub  = $this->makeNote($other, false);
+        $ownPriv = $this->makeNote($user, true);
+        $otherPub = $this->makeNote($other, false);
         $otherPriv = $this->makeNote($other, true);
 
         $visible = Note::visibleTo($user)->pluck('id')->all();
-        $this->assertContains($ownPriv->id,  $visible);
+        $this->assertContains($ownPriv->id, $visible);
         $this->assertContains($otherPub->id, $visible);
         $this->assertNotContains($otherPriv->id, $visible);
     }

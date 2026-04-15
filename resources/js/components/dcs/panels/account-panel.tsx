@@ -18,12 +18,17 @@ export function AccountPanel() {
                     >
                         <div
                             className="flex h-10 w-10 items-center justify-center rounded-full"
-                            style={{ background: 'var(--scheme-accent)', color: 'var(--scheme-accent-fg)' }}
+                            style={{
+                                background: 'var(--scheme-accent)',
+                                color: 'var(--scheme-accent-fg)',
+                            }}
                         >
                             <User className="h-5 w-5" />
                         </div>
                         <div className="min-w-0 flex-1">
-                            <div className="truncate text-sm font-semibold">{user.name}</div>
+                            <div className="truncate text-sm font-semibold">
+                                {user.name}
+                            </div>
                             <div
                                 className="truncate text-xs"
                                 style={{ color: 'var(--scheme-fg-muted)' }}
@@ -37,7 +42,10 @@ export function AccountPanel() {
                         href="/settings/profile"
                         className="mt-3 flex items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-[var(--scheme-accent-subtle)]"
                     >
-                        <Settings className="h-4 w-4" style={{ color: 'var(--scheme-fg-muted)' }} />
+                        <Settings
+                            className="h-4 w-4"
+                            style={{ color: 'var(--scheme-fg-muted)' }}
+                        />
                         Settings
                     </Link>
 
@@ -45,7 +53,10 @@ export function AccountPanel() {
                         onClick={logout}
                         className="mt-1 flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-[var(--scheme-accent-subtle)]"
                     >
-                        <LogOut className="h-4 w-4" style={{ color: 'var(--scheme-fg-muted)' }} />
+                        <LogOut
+                            className="h-4 w-4"
+                            style={{ color: 'var(--scheme-fg-muted)' }}
+                        />
                         Log out
                     </button>
                 </>

@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 
 export default function TopNav() {
     const { name } = usePage().props as { name?: string };
+
     return (
         <header
             className="flex h-[var(--topnav-height)] items-center justify-center border-b"

@@ -23,7 +23,9 @@ export default function Dashboard({ recent_notes }: Props) {
                     <div className="rounded-lg border border-dashed p-12 text-center">
                         <p className="text-muted-foreground">No notes yet.</p>
                         <Button asChild className="mt-4">
-                            <Link href="/notes/create">Create your first note</Link>
+                            <Link href="/notes/create">
+                                Create your first note
+                            </Link>
                         </Button>
                     </div>
                 ) : (
@@ -38,20 +40,30 @@ export default function Dashboard({ recent_notes }: Props) {
                                         <FileText className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                                         <div className="min-w-0 flex-1">
                                             <div className="flex items-center gap-2">
-                                                <span className="truncate font-medium">{note.title}</span>
+                                                <span className="truncate font-medium">
+                                                    {note.title}
+                                                </span>
                                                 {note.is_private && (
                                                     <Lock className="h-3 w-3 shrink-0 text-muted-foreground" />
                                                 )}
                                             </div>
                                             <div className="mt-0.5 text-xs text-muted-foreground">
                                                 {note.folder?.name ?? 'Unfiled'}
-                                                {note.last_editor && <> · {note.last_editor.name}</>}
+                                                {note.last_editor && (
+                                                    <>
+                                                        {' '}
+                                                        ·{' '}
+                                                        {note.last_editor.name}
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
                                     {note.updated_at && (
                                         <span className="shrink-0 text-xs text-muted-foreground">
-                                            {new Date(note.updated_at).toLocaleDateString()}
+                                            {new Date(
+                                                note.updated_at,
+                                            ).toLocaleDateString()}
                                         </span>
                                     )}
                                 </Link>

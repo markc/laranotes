@@ -31,8 +31,10 @@ export default function EditNote({ note, folders }: Props) {
     useEffect(() => {
         if (!initialized.current) {
             initialized.current = true;
+
             return;
         }
+
         setStatus('saving');
         router.put(
             `/notes/${note.id}`,
@@ -70,6 +72,7 @@ export default function EditNote({ note, folders }: Props) {
             }
         };
         window.addEventListener('keydown', handler);
+
         return () => window.removeEventListener('keydown', handler);
     }, [note.id, title, body, isPrivate, folderId]);
 
@@ -88,12 +91,18 @@ export default function EditNote({ note, folders }: Props) {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Untitled"
-                        className="flex-1 min-w-[12rem] bg-transparent text-xl font-semibold outline-none"
+                        className="min-w-[12rem] flex-1 bg-transparent text-xl font-semibold outline-none"
                     />
 
                     <select
                         value={folderId ?? ''}
-                        onChange={(e) => setFolderId(e.target.value ? parseInt(e.target.value, 10) : null)}
+                        onChange={(e) =>
+                            setFolderId(
+                                e.target.value
+                                    ? parseInt(e.target.value, 10)
+                                    : null,
+                            )
+                        }
                         className="rounded-md border bg-background px-2 py-1 text-sm"
                     >
                         <option value="">Unfiled</option>
@@ -105,9 +114,24 @@ export default function EditNote({ note, folders }: Props) {
                     </select>
 
                     <div className="flex items-center gap-0.5 rounded-md border p-0.5">
-                        <ViewButton active={view === 'editor'} onClick={() => setView('editor')} icon={<Pencil className="h-3.5 w-3.5" />} label="Editor" />
-                        <ViewButton active={view === 'split'} onClick={() => setView('split')} icon={<Columns className="h-3.5 w-3.5" />} label="Split" />
-                        <ViewButton active={view === 'preview'} onClick={() => setView('preview')} icon={<Eye className="h-3.5 w-3.5" />} label="Preview" />
+                        <ViewButton
+                            active={view === 'editor'}
+                            onClick={() => setView('editor')}
+                            icon={<Pencil className="h-3.5 w-3.5" />}
+                            label="Editor"
+                        />
+                        <ViewButton
+                            active={view === 'split'}
+                            onClick={() => setView('split')}
+                            icon={<Columns className="h-3.5 w-3.5" />}
+                            label="Split"
+                        />
+                        <ViewButton
+                            active={view === 'preview'}
+                            onClick={() => setView('preview')}
+                            icon={<Eye className="h-3.5 w-3.5" />}
+                            label="Preview"
+                        />
                     </div>
 
                     <Button
@@ -116,38 +140,87 @@ export default function EditNote({ note, folders }: Props) {
                         onClick={() => setIsPrivate(!isPrivate)}
                         title={isPrivate ? 'Make shared' : 'Make private'}
                     >
-                        {isPrivate ? <Lock className="h-3.5 w-3.5" /> : <LockOpen className="h-3.5 w-3.5" />}
-                        <span className="ml-1 text-xs">{isPrivate ? 'Private' : 'Shared'}</span>
+                        {isPrivate ? (
+                            <Lock className="h-3.5 w-3.5" />
+                        ) : (
+                            <LockOpen className="h-3.5 w-3.5" />
+                        )}
+                        <span className="ml-1 text-xs">
+                            {isPrivate ? 'Private' : 'Shared'}
+                        </span>
                     </Button>
 
-                    <Button variant="outline" size="sm" onClick={handleDelete} className="text-destructive">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleDelete}
+                        className="text-destructive"
+                    >
                         <Trash2 className="h-3.5 w-3.5" />
                     </Button>
 
                     <span className="min-w-[4rem] text-right text-xs text-muted-foreground">
-                        {status === 'saving' ? 'Saving…' : status === 'saved' ? 'Saved' : ''}
+                        {status === 'saving'
+                            ? 'Saving…'
+                            : status === 'saved'
+                              ? 'Saved'
+                              : ''}
                     </span>
                 </div>
 
                 <div className="flex flex-1 overflow-hidden">
                     {(view === 'editor' || view === 'split') && (
-                        <div className={cn('h-full overflow-hidden border-r', view === 'split' ? 'w-1/2' : 'flex-1')}>
-                            <MarkdownEditor value={body} onChange={setBody} placeholder="Start writing…" />
+                        <div
+                            className={cn(
+                                'h-full overflow-hidden border-r',
+                                view === 'split' ? 'w-1/2' : 'flex-1',
+                            )}
+                        >
+                            <MarkdownEditor
+                                value={body}
+                                onChange={setBody}
+                                placeholder="Start writing…"
+                            />
                         </div>
                     )}
                     {(view === 'preview' || view === 'split') && (
-                        <div className={cn('h-full overflow-auto px-6 py-4', view === 'split' ? 'w-1/2' : 'flex-1')}>
+                        <div
+                            className={cn(
+                                'h-full overflow-auto px-6 py-4',
+                                view === 'split' ? 'w-1/2' : 'flex-1',
+                            )}
+                        >
                             <MarkdownPreview content={body} />
                         </div>
                     )}
                 </div>
 
                 <div className="border-t px-4 py-2 text-xs text-muted-foreground">
-                    {note.author && <>Author: <span className="font-medium">{note.author.name}</span></>}
-                    {note.last_editor && note.last_editor.id !== note.author?.id && (
-                        <> · Last editor: <span className="font-medium">{note.last_editor.name}</span></>
+                    {note.author && (
+                        <>
+                            Author:{' '}
+                            <span className="font-medium">
+                                {note.author.name}
+                            </span>
+                        </>
                     )}
-                    {note.updated_at && <> · Updated {new Date(note.updated_at).toLocaleString()}</>}
+                    {note.last_editor &&
+                        note.last_editor.id !== note.author?.id && (
+                            <>
+                                {' '}
+                                · Last editor:{' '}
+                                <span className="font-medium">
+                                    {note.last_editor.name}
+                                </span>
+                            </>
+                        )}
+                    {note.updated_at && (
+                        <>
+                            {' '}
+                            · Updated{' '}
+                            {new Date(note.updated_at).toLocaleString()}
+                        </>
+                    )}
                 </div>
             </div>
         </>
@@ -171,7 +244,9 @@ function ViewButton({
             onClick={onClick}
             className={cn(
                 'flex items-center gap-1 rounded px-2 py-1 text-xs',
-                active ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:bg-accent/50',
+                active
+                    ? 'bg-accent text-accent-foreground'
+                    : 'text-muted-foreground hover:bg-accent/50',
             )}
             title={label}
         >

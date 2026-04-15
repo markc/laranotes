@@ -1,5 +1,5 @@
 import { Pin, PinOff } from 'lucide-react';
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import PanelCarousel from '@/components/dcs/panel-carousel';
 import { useTheme } from '@/contexts/theme-context';
 
@@ -37,11 +37,19 @@ export default function DcsSidebar({ side, panels }: Props) {
                         onClick={() => theme.pinSidebar(side)}
                         className="hidden rounded p-1 transition-colors hover:bg-background xl:block"
                         style={{
-                            color: state.pinned ? 'var(--scheme-accent)' : 'var(--scheme-fg-muted)',
+                            color: state.pinned
+                                ? 'var(--scheme-accent)'
+                                : 'var(--scheme-fg-muted)',
                         }}
-                        aria-label={state.pinned ? 'Unpin sidebar' : 'Pin sidebar'}
+                        aria-label={
+                            state.pinned ? 'Unpin sidebar' : 'Pin sidebar'
+                        }
                     >
-                        {state.pinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
+                        {state.pinned ? (
+                            <PinOff className="h-3.5 w-3.5" />
+                        ) : (
+                            <Pin className="h-3.5 w-3.5" />
+                        )}
                     </button>
                 }
             />

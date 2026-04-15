@@ -25,8 +25,8 @@ class NoteAccessTest extends TestCase
     public function test_user_cannot_update_another_users_public_note(): void
     {
         $author = User::factory()->create(['role' => 'user']);
-        $other  = User::factory()->create(['role' => 'user']);
-        $note   = $this->note($author, false);
+        $other = User::factory()->create(['role' => 'user']);
+        $note = $this->note($author, false);
 
         $this->actingAs($other)
             ->put(route('notes.update', $note), ['title' => 'Hacked', 'body' => 'x', 'is_private' => false])
@@ -38,8 +38,8 @@ class NoteAccessTest extends TestCase
     public function test_user_cannot_delete_another_users_public_note(): void
     {
         $author = User::factory()->create(['role' => 'user']);
-        $other  = User::factory()->create(['role' => 'user']);
-        $note   = $this->note($author, false);
+        $other = User::factory()->create(['role' => 'user']);
+        $note = $this->note($author, false);
 
         $this->actingAs($other)
             ->delete(route('notes.destroy', $note))
@@ -50,9 +50,9 @@ class NoteAccessTest extends TestCase
 
     public function test_moderator_can_update_any_public_note(): void
     {
-        $author    = User::factory()->create(['role' => 'user']);
+        $author = User::factory()->create(['role' => 'user']);
         $moderator = User::factory()->create(['role' => 'moderator']);
-        $note      = $this->note($author, false);
+        $note = $this->note($author, false);
 
         $this->actingAs($moderator)
             ->put(route('notes.update', $note), ['title' => 'Curated', 'body' => 'x', 'is_private' => false])
@@ -63,9 +63,9 @@ class NoteAccessTest extends TestCase
 
     public function test_moderator_cannot_touch_others_private_note(): void
     {
-        $author    = User::factory()->create(['role' => 'user']);
+        $author = User::factory()->create(['role' => 'user']);
         $moderator = User::factory()->create(['role' => 'moderator']);
-        $note      = $this->note($author, true);
+        $note = $this->note($author, true);
 
         $this->actingAs($moderator)
             ->get(route('notes.show', $note))
@@ -86,8 +86,8 @@ class NoteAccessTest extends TestCase
         $viewer = User::factory()->create(['role' => 'viewer']);
         $author = User::factory()->create(['role' => 'user']);
 
-        $public  = $this->note($author, false, 'PublicDoc');
-        $private = $this->note($author, true,  'PrivateDoc');
+        $public = $this->note($author, false, 'PublicDoc');
+        $private = $this->note($author, true, 'PrivateDoc');
 
         $response = $this->actingAs($viewer)->get(route('dashboard'));
         $response->assertOk();

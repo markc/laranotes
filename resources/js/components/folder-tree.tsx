@@ -1,6 +1,13 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { ChevronRight, FileText, Folder as FolderIcon, Lock, Plus } from 'lucide-react';
-import { useState, type MouseEvent } from 'react';
+import {
+    ChevronRight,
+    FileText,
+    Folder as FolderIcon,
+    Lock,
+    Plus,
+} from 'lucide-react';
+import { useState } from 'react';
+import type { MouseEvent } from 'react';
 import { cn } from '@/lib/utils';
 import type { FolderNode, NoteLite } from '@/types/models';
 
@@ -56,8 +63,13 @@ function FolderTreeNode({
         e.preventDefault();
         e.stopPropagation();
         const name = window.prompt('Rename folder', node.name);
+
         if (name && name.trim() && name.trim() !== node.name) {
-            router.put(`/folders/${node.id}`, { name: name.trim() }, { preserveScroll: true });
+            router.put(
+                `/folders/${node.id}`,
+                { name: name.trim() },
+                { preserveScroll: true },
+            );
         }
     };
 
@@ -74,6 +86,7 @@ function FolderTreeNode({
     const deleteFolder = (e: MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+
         if (window.confirm(`Delete folder "${node.name}"? It must be empty.`)) {
             router.delete(`/folders/${node.id}`, { preserveScroll: true });
         }
@@ -107,7 +120,7 @@ function FolderTreeNode({
                 <button
                     type="button"
                     onClick={createNoteInFolder}
-                    className="opacity-0 group-hover:opacity-100 rounded p-0.5 hover:bg-sidebar-accent-foreground/10"
+                    className="rounded p-0.5 opacity-0 group-hover:opacity-100 hover:bg-sidebar-accent-foreground/10"
                     title="New note in this folder"
                 >
                     <Plus className="h-3.5 w-3.5" />
@@ -115,15 +128,19 @@ function FolderTreeNode({
                 <button
                     type="button"
                     onClick={togglePrivacy}
-                    className="opacity-0 group-hover:opacity-100 rounded p-0.5 text-muted-foreground hover:bg-sidebar-accent-foreground/10"
-                    title={node.is_private ? 'Make folder public' : 'Make folder private'}
+                    className="rounded p-0.5 text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-sidebar-accent-foreground/10"
+                    title={
+                        node.is_private
+                            ? 'Make folder public'
+                            : 'Make folder private'
+                    }
                 >
                     <Lock className="h-3 w-3" />
                 </button>
                 <button
                     type="button"
                     onClick={deleteFolder}
-                    className="opacity-0 group-hover:opacity-100 rounded p-0.5 text-xs text-muted-foreground hover:bg-sidebar-accent-foreground/10"
+                    className="rounded p-0.5 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-sidebar-accent-foreground/10"
                     title="Delete folder"
                 >
                     ×
@@ -174,7 +191,8 @@ function NoteLink({
                 href={`/notes/${note.id}/edit`}
                 className={cn(
                     'flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm hover:bg-sidebar-accent',
-                    isActive && 'bg-sidebar-accent font-medium text-sidebar-accent-foreground',
+                    isActive &&
+                        'bg-sidebar-accent font-medium text-sidebar-accent-foreground',
                 )}
                 style={{ paddingInlineStart: `${depth * 0.75 + 1.5}rem` }}
             >

@@ -20,7 +20,7 @@ class FolderPrivacyValidationTest extends TestCase
     public function test_cannot_make_folder_private_while_it_contains_others_notes(): void
     {
         $alice = $this->user();
-        $bob   = $this->user();
+        $bob = $this->user();
 
         $folder = Folder::create([
             'user_id' => $alice->id,
@@ -80,7 +80,7 @@ class FolderPrivacyValidationTest extends TestCase
     public function test_cannot_create_note_in_other_users_private_folder(): void
     {
         $alice = $this->user();
-        $bob   = $this->user();
+        $bob = $this->user();
 
         $alicePriv = Folder::create([
             'user_id' => $alice->id,
@@ -104,7 +104,7 @@ class FolderPrivacyValidationTest extends TestCase
     public function test_cannot_move_note_into_other_users_private_folder(): void
     {
         $alice = $this->user();
-        $bob   = $this->user();
+        $bob = $this->user();
 
         $alicePriv = Folder::create([
             'user_id' => $alice->id,
@@ -136,7 +136,7 @@ class FolderPrivacyValidationTest extends TestCase
     public function test_can_place_note_in_any_public_folder(): void
     {
         $alice = $this->user();
-        $bob   = $this->user();
+        $bob = $this->user();
 
         $alicePub = Folder::create([
             'user_id' => $alice->id,

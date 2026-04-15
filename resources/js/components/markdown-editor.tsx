@@ -19,7 +19,9 @@ export function MarkdownEditor({ value, onChange, placeholder }: Props) {
             onChange={onChange}
             placeholder={placeholder}
             theme={isDark ? 'dark' : 'light'}
-            extensions={[markdown({ base: markdownLanguage, codeLanguages: languages })]}
+            extensions={[
+                markdown({ base: markdownLanguage, codeLanguages: languages }),
+            ]}
             basicSetup={{
                 lineNumbers: false,
                 foldGutter: false,
