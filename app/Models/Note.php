@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -67,6 +68,10 @@ class Note extends Model
 
     public function scopeVisibleTo($query, User $user)
     {
+        if ($user->role === Role::Viewer) {
+            return $query->where('is_private', false);
+        }
+
         return $query->where(function ($q) use ($user) {
             $q->where('is_private', false)->orWhere('user_id', $user->id);
         });

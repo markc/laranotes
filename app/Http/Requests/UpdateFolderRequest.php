@@ -8,7 +8,7 @@ class UpdateFolderRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() !== null;
+        return $this->user()?->can('update', $this->route('folder')) ?? false;
     }
 
     public function rules(): array
@@ -17,6 +17,7 @@ class UpdateFolderRequest extends FormRequest
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'parent_id' => ['nullable', 'integer', 'exists:folders,id'],
             'sort_order' => ['sometimes', 'integer'],
+            'is_private' => ['sometimes', 'boolean'],
         ];
     }
 }

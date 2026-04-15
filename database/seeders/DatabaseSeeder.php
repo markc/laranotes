@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Role;
 use App\Models\Folder;
 use App\Models\Note;
 use App\Models\User;
@@ -16,6 +17,37 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin',
+                'role' => Role::Admin->value,
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ],
+        );
+
+        User::updateOrCreate(
+            ['email' => 'moderator@example.com'],
+            [
+                'name' => 'Moderator',
+                'role' => Role::Moderator->value,
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ],
+        );
+
+        User::updateOrCreate(
+            ['email' => 'user@example.com'],
+            [
+                'name' => 'User',
+                'role' => Role::User->value,
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ],
+        );
+
+        User::updateOrCreate(
+            ['email' => 'viewer@example.com'],
+            [
+                'name' => 'Viewer',
+                'role' => Role::Viewer->value,
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
             ],

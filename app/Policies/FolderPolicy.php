@@ -14,31 +14,43 @@ class FolderPolicy
 
     public function view(User $user, Folder $folder): bool
     {
-        return true;
+        if (! $folder->is_private) {
+            return true;
+        }
+
+        return $folder->user_id === $user->id || $user->role->isAdmin();
     }
 
     public function create(User $user): bool
     {
-        return true;
+        return $user->role->canCreate();
     }
 
     public function update(User $user, Folder $folder): bool
     {
-        return true;
+        if ($folder->user_id === $user->id) {
+            return $user->role->canCreate();
+        }
+
+        return $user->role->canModerate() && ! $folder->is_private;
     }
 
     public function delete(User $user, Folder $folder): bool
     {
-        return true;
+        if ($folder->user_id === $user->id) {
+            return $user->role->canCreate();
+        }
+
+        return $user->role->canModerate() && ! $folder->is_private;
     }
 
     public function restore(User $user, Folder $folder): bool
     {
-        return true;
+        return $folder->user_id === $user->id || $user->role->isAdmin();
     }
 
     public function forceDelete(User $user, Folder $folder): bool
     {
-        return $folder->user_id === $user->id;
+        return $folder->user_id === $user->id || $user->role->isAdmin();
     }
 }

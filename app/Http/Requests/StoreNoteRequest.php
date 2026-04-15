@@ -2,13 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Note;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreNoteRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() !== null;
+        return $this->user()?->can('create', Note::class) ?? false;
     }
 
     public function rules(): array

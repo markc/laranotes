@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\Role;
 use App\Models\Note;
 use App\Models\User;
 
@@ -14,31 +15,52 @@ class NotePolicy
 
     public function view(User $user, Note $note): bool
     {
-        return ! $note->is_private || $note->user_id === $user->id;
+        if (! $note->is_private) {
+            return true;
+        }
+
+        return $note->user_id === $user->id || $user->role->isAdmin();
     }
 
     public function create(User $user): bool
     {
-        return true;
+        return $user->role->canCreate();
     }
 
     public function update(User $user, Note $note): bool
     {
-        return $this->view($user, $note);
+        if ($note->user_id === $user->id) {
+            return $user->role->canCreate();
+        }
+
+        return $user->role->canModerate() && ! $note->is_private;
     }
 
     public function delete(User $user, Note $note): bool
     {
-        return $note->user_id === $user->id || ! $note->is_private;
+        if ($note->user_id === $user->id) {
+            return $user->role->canCreate();
+        }
+
+        return $user->role->canModerate() && ! $note->is_private;
+    }
+
+    public function share(User $user, Note $note): bool
+    {
+        if ($note->user_id === $user->id) {
+            return $user->role->canCreate();
+        }
+
+        return $user->role->canModerate() && ! $note->is_private;
     }
 
     public function restore(User $user, Note $note): bool
     {
-        return $note->user_id === $user->id;
+        return $note->user_id === $user->id || $user->role->isAdmin();
     }
 
     public function forceDelete(User $user, Note $note): bool
     {
-        return $note->user_id === $user->id;
+        return $note->user_id === $user->id || $user->role->isAdmin();
     }
 }

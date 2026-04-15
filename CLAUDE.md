@@ -31,7 +31,7 @@ A shared markdown note-taking app — Laravel 13 + Inertia v3 + React 19 + SQLit
 
 ```bash
 php artisan serve --port=8765
-bun run dev          # HMR (uses /usr/sbin/bun on this machine)
+bun run dev          # HMR (uses /usr/bin/bun on this machine)
 bun run build        # production build
 php artisan migrate:fresh --seed
 ```

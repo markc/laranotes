@@ -13,7 +13,14 @@ class Folder extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['parent_id', 'user_id', 'name', 'slug', 'sort_order'];
+    protected $fillable = ['parent_id', 'user_id', 'name', 'slug', 'sort_order', 'is_private'];
+
+    protected function casts(): array
+    {
+        return [
+            'is_private' => 'boolean',
+        ];
+    }
 
     protected static function booted(): void
     {
