@@ -1,6 +1,6 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import {  useState } from 'react';
-import type {FormEvent} from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import type { Role } from '@/types/auth';
 
 type Invite = {
@@ -38,8 +38,8 @@ export default function InvitesIndex({ invites, invitable_roles }: Props) {
 
     const revoke = (invite: Invite) => {
         if (!window.confirm(`Revoke invite for ${invite.email}?`)) {
-return;
-}
+            return;
+        }
 
         router.delete(`/invites/${invite.id}`, { preserveScroll: true });
     };
@@ -56,16 +56,16 @@ return;
 
     const status = (invite: Invite) => {
         if (invite.accepted_at) {
-return 'accepted';
-}
+            return 'accepted';
+        }
 
         if (invite.revoked_at) {
-return 'revoked';
-}
+            return 'revoked';
+        }
 
         if (!invite.is_claimable) {
-return 'expired';
-}
+            return 'expired';
+        }
 
         return 'pending';
     };

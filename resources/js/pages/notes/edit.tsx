@@ -24,16 +24,21 @@ export default function EditNote({ note, folders }: Props) {
     const [view, setView] = useState<ViewMode>('split');
     const initialized = useRef(false);
 
+    const readOnly = !note.can_edit;
     const debouncedTitle = useDebounce(title, 700);
     const debouncedBody = useDebounce(body, 700);
 
-    // Auto-save on debounced changes
+    // Auto-save on debounced changes (skip in read-only mode)
     useEffect(() => {
         if (!initialized.current) {
             initialized.current = true;
 
             return;
         }
+
+        if (readOnly) {
+return;
+}
 
         setStatus('saving');
         router.put(
@@ -57,6 +62,10 @@ export default function EditNote({ note, folders }: Props) {
     // Keyboard shortcuts
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
+            if (readOnly) {
+return;
+}
+
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
                 setStatus('saving');
@@ -74,7 +83,7 @@ export default function EditNote({ note, folders }: Props) {
         window.addEventListener('keydown', handler);
 
         return () => window.removeEventListener('keydown', handler);
-    }, [note.id, title, body, isPrivate, folderId]);
+    }, [note.id, title, body, isPrivate, folderId, readOnly]);
 
     const handleDelete = () => {
         if (window.confirm('Delete this note?')) {
@@ -86,12 +95,25 @@ export default function EditNote({ note, folders }: Props) {
         <>
             <Head title={title || 'Untitled'} />
             <div className="flex h-[calc(100vh-var(--topnav-height))] flex-col">
+                {readOnly && (
+                    <div
+                        className="border-b bg-muted/40 px-4 py-2 text-xs text-muted-foreground"
+                        role="status"
+                    >
+                        Read-only — this note is owned by{' '}
+                        <span className="font-medium">
+                            {note.author?.name ?? 'someone else'}
+                        </span>
+                        . You can view but not modify it.
+                    </div>
+                )}
                 <div className="flex flex-wrap items-center gap-2 border-b px-4 py-3">
                     <input
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Untitled"
-                        className="min-w-[12rem] flex-1 bg-transparent text-xl font-semibold outline-none"
+                        disabled={readOnly}
+                        className="min-w-[12rem] flex-1 bg-transparent text-xl font-semibold outline-none disabled:cursor-not-allowed disabled:opacity-70"
                     />
 
                     <select
@@ -103,7 +125,8 @@ export default function EditNote({ note, folders }: Props) {
                                     : null,
                             )
                         }
-                        className="rounded-md border bg-background px-2 py-1 text-sm"
+                        disabled={readOnly}
+                        className="rounded-md border bg-background px-2 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-70"
                     >
                         <option value="">Unfiled</option>
                         {folders.map((f) => (
@@ -134,30 +157,34 @@ export default function EditNote({ note, folders }: Props) {
                         />
                     </div>
 
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setIsPrivate(!isPrivate)}
-                        title={isPrivate ? 'Make shared' : 'Make private'}
-                    >
-                        {isPrivate ? (
-                            <Lock className="h-3.5 w-3.5" />
-                        ) : (
-                            <LockOpen className="h-3.5 w-3.5" />
-                        )}
-                        <span className="ml-1 text-xs">
-                            {isPrivate ? 'Private' : 'Shared'}
-                        </span>
-                    </Button>
+                    {!readOnly && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsPrivate(!isPrivate)}
+                            title={isPrivate ? 'Make shared' : 'Make private'}
+                        >
+                            {isPrivate ? (
+                                <Lock className="h-3.5 w-3.5" />
+                            ) : (
+                                <LockOpen className="h-3.5 w-3.5" />
+                            )}
+                            <span className="ml-1 text-xs">
+                                {isPrivate ? 'Private' : 'Shared'}
+                            </span>
+                        </Button>
+                    )}
 
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleDelete}
-                        className="text-destructive"
-                    >
-                        <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                    {note.can_delete && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleDelete}
+                            className="text-destructive"
+                        >
+                            <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                    )}
 
                     <span className="min-w-[4rem] text-right text-xs text-muted-foreground">
                         {status === 'saving'
@@ -180,6 +207,7 @@ export default function EditNote({ note, folders }: Props) {
                                 value={body}
                                 onChange={setBody}
                                 placeholder="Start writing…"
+                                readOnly={readOnly}
                             />
                         </div>
                     )}

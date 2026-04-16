@@ -118,6 +118,8 @@ class NoteController extends Controller
 
     private function serialize(Note $note): array
     {
+        $user = request()->user();
+
         return [
             'id' => $note->id,
             'title' => $note->title,
@@ -131,6 +133,11 @@ class NoteController extends Controller
             'last_editor' => $note->lastEditor ? ['id' => $note->lastEditor->id, 'name' => $note->lastEditor->name] : null,
             'created_at' => $note->created_at?->toIso8601String(),
             'updated_at' => $note->updated_at?->toIso8601String(),
+            // Authoritative per-note capability flags (from policies, not hints).
+            // Used by the edit page to render read-only mode without trusting
+            // client-side role logic.
+            'can_edit' => $user ? $user->can('update', $note) : false,
+            'can_delete' => $user ? $user->can('delete', $note) : false,
         ];
     }
 

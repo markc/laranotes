@@ -2,11 +2,13 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { FilePlus, FolderPlus, LayoutGrid } from 'lucide-react';
 import { useState } from 'react';
 import { FolderTree } from '@/components/folder-tree';
+import { useCanHints } from '@/hooks/use-can-hints';
 import type { FolderNode } from '@/types/models';
 
 export function FoldersPanel() {
     const { props } = usePage<{ folderTree?: FolderNode[] }>();
     const folderTree = props.folderTree ?? [];
+    const canHints = useCanHints();
 
     const activeNoteId =
         typeof window !== 'undefined'
@@ -59,16 +61,18 @@ export function FoldersPanel() {
                     />
                     Dashboard
                 </Link>
-                <Link
-                    href="/notes/create"
-                    className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-[var(--scheme-accent-subtle)]"
-                >
-                    <FilePlus
-                        className="h-4 w-4"
-                        style={{ color: 'var(--scheme-fg-muted)' }}
-                    />
-                    New note
-                </Link>
+                {canHints.createNotes && (
+                    <Link
+                        href="/notes/create"
+                        className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-[var(--scheme-accent-subtle)]"
+                    >
+                        <FilePlus
+                            className="h-4 w-4"
+                            style={{ color: 'var(--scheme-fg-muted)' }}
+                        />
+                        New note
+                    </Link>
+                )}
             </div>
 
             <div
@@ -81,15 +85,17 @@ export function FoldersPanel() {
                 >
                     Folders
                 </span>
-                <button
-                    type="button"
-                    onClick={() => setCreating(true)}
-                    className="rounded p-0.5 hover:bg-[var(--scheme-accent-subtle)]"
-                    style={{ color: 'var(--scheme-fg-muted)' }}
-                    title="New folder"
-                >
-                    <FolderPlus className="h-3.5 w-3.5" />
-                </button>
+                {canHints.createFolders && (
+                    <button
+                        type="button"
+                        onClick={() => setCreating(true)}
+                        className="rounded p-0.5 hover:bg-[var(--scheme-accent-subtle)]"
+                        style={{ color: 'var(--scheme-fg-muted)' }}
+                        title="New folder"
+                    >
+                        <FolderPlus className="h-3.5 w-3.5" />
+                    </button>
+                )}
             </div>
 
             {creating && (

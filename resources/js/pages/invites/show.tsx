@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import type {FormEvent} from 'react';
+import type { FormEvent } from 'react';
 import type { Role } from '@/types/auth';
 
 type Props = {

@@ -1,4 +1,4 @@
-import { Link, router, usePage } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import {
     ChevronRight,
     FileText,
@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import type { MouseEvent } from 'react';
+import { useCanHints, useCurrentUser } from '@/hooks/use-can-hints';
 import { cn } from '@/lib/utils';
 import type { FolderNode, NoteLite } from '@/types/models';
 
@@ -52,6 +53,18 @@ function FolderTreeNode({
     const [open, setOpen] = useState(true);
     const hasChildren = node.children.length > 0;
     const hasNotes = node.notes.length > 0;
+    const canHints = useCanHints();
+    const currentUser = useCurrentUser();
+
+    // Mirror the server-side FolderPolicy so buttons only appear when the
+    // action would actually succeed. Policies remain authoritative; this
+    // hides noise that would otherwise 403 on click.
+    const isOwner = currentUser?.id === node.user_id;
+    const canModifyFolder = isOwner
+        ? canHints.createFolders
+        : canHints.moderate && !node.is_private;
+    const canCreateNoteHere =
+        canHints.createNotes && (isOwner || !node.is_private);
 
     const createNoteInFolder = (e: MouseEvent) => {
         e.preventDefault();
@@ -62,6 +75,11 @@ function FolderTreeNode({
     const renameFolder = (e: MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+
+        if (!canModifyFolder) {
+return;
+}
+
         const name = window.prompt('Rename folder', node.name);
 
         if (name && name.trim() && name.trim() !== node.name) {
@@ -117,34 +135,40 @@ function FolderTreeNode({
                         <Lock className="h-3 w-3 shrink-0 text-muted-foreground" />
                     )}
                 </button>
-                <button
-                    type="button"
-                    onClick={createNoteInFolder}
-                    className="rounded p-0.5 opacity-0 group-hover:opacity-100 hover:bg-sidebar-accent-foreground/10"
-                    title="New note in this folder"
-                >
-                    <Plus className="h-3.5 w-3.5" />
-                </button>
-                <button
-                    type="button"
-                    onClick={togglePrivacy}
-                    className="rounded p-0.5 text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-sidebar-accent-foreground/10"
-                    title={
-                        node.is_private
-                            ? 'Make folder public'
-                            : 'Make folder private'
-                    }
-                >
-                    <Lock className="h-3 w-3" />
-                </button>
-                <button
-                    type="button"
-                    onClick={deleteFolder}
-                    className="rounded p-0.5 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-sidebar-accent-foreground/10"
-                    title="Delete folder"
-                >
-                    ×
-                </button>
+                {canCreateNoteHere && (
+                    <button
+                        type="button"
+                        onClick={createNoteInFolder}
+                        className="rounded p-0.5 opacity-0 group-hover:opacity-100 hover:bg-sidebar-accent-foreground/10"
+                        title="New note in this folder"
+                    >
+                        <Plus className="h-3.5 w-3.5" />
+                    </button>
+                )}
+                {canModifyFolder && isOwner && (
+                    <button
+                        type="button"
+                        onClick={togglePrivacy}
+                        className="rounded p-0.5 text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-sidebar-accent-foreground/10"
+                        title={
+                            node.is_private
+                                ? 'Make folder public'
+                                : 'Make folder private'
+                        }
+                    >
+                        <Lock className="h-3 w-3" />
+                    </button>
+                )}
+                {canModifyFolder && (
+                    <button
+                        type="button"
+                        onClick={deleteFolder}
+                        className="rounded p-0.5 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-sidebar-accent-foreground/10"
+                        title="Delete folder"
+                    >
+                        ×
+                    </button>
+                )}
             </div>
             {open && (
                 <>
@@ -182,7 +206,7 @@ function NoteLink({
     activeNoteId?: number | null;
     depth: number;
 }) {
-    const currentUser = usePage().props.auth.user;
+    const currentUser = useCurrentUser();
     const isActive = note.id === activeNoteId;
 
     return (

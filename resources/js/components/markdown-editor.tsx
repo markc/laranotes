@@ -7,9 +7,15 @@ type Props = {
     value: string;
     onChange: (value: string) => void;
     placeholder?: string;
+    readOnly?: boolean;
 };
 
-export function MarkdownEditor({ value, onChange, placeholder }: Props) {
+export function MarkdownEditor({
+    value,
+    onChange,
+    placeholder,
+    readOnly = false,
+}: Props) {
     const { resolvedAppearance } = useAppearance();
     const isDark = resolvedAppearance === 'dark';
 
@@ -19,6 +25,8 @@ export function MarkdownEditor({ value, onChange, placeholder }: Props) {
             onChange={onChange}
             placeholder={placeholder}
             theme={isDark ? 'dark' : 'light'}
+            editable={!readOnly}
+            readOnly={readOnly}
             extensions={[
                 markdown({ base: markdownLanguage, codeLanguages: languages }),
             ]}

@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { FileText, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCanHints } from '@/hooks/use-can-hints';
 import type { RecentNote } from '@/types/models';
 
 type Props = {
@@ -8,25 +9,31 @@ type Props = {
 };
 
 export default function Dashboard({ recent_notes }: Props) {
+    const canHints = useCanHints();
+
     return (
         <>
             <Head title="Dashboard" />
             <div className="mx-auto max-w-4xl px-6 py-8">
                 <div className="mb-6 flex items-center justify-between">
                     <h1 className="text-2xl font-semibold">Recent notes</h1>
-                    <Button asChild>
-                        <Link href="/notes/create">New note</Link>
-                    </Button>
+                    {canHints.createNotes && (
+                        <Button asChild>
+                            <Link href="/notes/create">New note</Link>
+                        </Button>
+                    )}
                 </div>
 
                 {recent_notes.length === 0 ? (
                     <div className="rounded-lg border border-dashed p-12 text-center">
                         <p className="text-muted-foreground">No notes yet.</p>
-                        <Button asChild className="mt-4">
-                            <Link href="/notes/create">
-                                Create your first note
-                            </Link>
-                        </Button>
+                        {canHints.createNotes && (
+                            <Button asChild className="mt-4">
+                                <Link href="/notes/create">
+                                    Create your first note
+                                </Link>
+                            </Button>
+                        )}
                     </div>
                 ) : (
                     <ul className="flex flex-col gap-2">
