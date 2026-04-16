@@ -24,6 +24,15 @@ enum Role: string
         return $this === self::Admin;
     }
 
+    public function canInvite(self $target): bool
+    {
+        return match ($this) {
+            self::Admin => true,
+            self::Moderator => $target === self::User || $target === self::Viewer,
+            default => false,
+        };
+    }
+
     public function label(): string
     {
         return match ($this) {

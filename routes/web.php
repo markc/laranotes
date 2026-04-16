@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FolderController;
+use App\Http\Controllers\InviteController;
 use App\Http\Controllers\NoteController;
 use Illuminate\Support\Facades\Route;
 
@@ -11,6 +12,13 @@ Route::get('/', function () {
         ? redirect()->route('dashboard')
         : redirect()->route('login');
 })->name('home');
+
+// Public invite acceptance — no auth required, rate-limited to discourage
+// token enumeration.
+Route::middleware('throttle:10,1')->group(function () {
+    Route::get('/invite/{token}', [InviteController::class, 'show'])->name('invites.show');
+    Route::post('/invite/{token}', [InviteController::class, 'accept'])->name('invites.accept');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -25,6 +33,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::patch('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+    });
+
+    Route::middleware('role:admin,moderator')->group(function () {
+        Route::get('/invites', [InviteController::class, 'index'])->name('invites.index');
+        Route::post('/invites', [InviteController::class, 'store'])->name('invites.store');
+        Route::delete('/invites/{invite}', [InviteController::class, 'destroy'])->name('invites.destroy');
     });
 });
 

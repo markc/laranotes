@@ -143,8 +143,9 @@ return [
     |
     */
 
+    // Public registration is disabled — new accounts are provisioned via
+    // /invites (admin/moderator-only). See App\Http\Controllers\InviteController.
     'features' => [
-        Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([
