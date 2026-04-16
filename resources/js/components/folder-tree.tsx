@@ -77,8 +77,8 @@ function FolderTreeNode({
         e.stopPropagation();
 
         if (!canModifyFolder) {
-return;
-}
+            return;
+        }
 
         const name = window.prompt('Rename folder', node.name);
 

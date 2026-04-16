@@ -37,8 +37,8 @@ export default function EditNote({ note, folders }: Props) {
         }
 
         if (readOnly) {
-return;
-}
+            return;
+        }
 
         setStatus('saving');
         router.put(
@@ -63,8 +63,8 @@ return;
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
             if (readOnly) {
-return;
-}
+                return;
+            }
 
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();

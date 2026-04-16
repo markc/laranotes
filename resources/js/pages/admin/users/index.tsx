@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import type { Role } from '@/types/auth';
 
 type UserRow = {
@@ -22,6 +22,12 @@ type Props = {
 };
 
 export default function AdminUsersIndex({ users, roles }: Props) {
+    const currentUser = usePage().props.auth?.user;
+
+    const impersonate = (user: UserRow) => {
+        router.post(`/admin/impersonate/${user.id}`);
+    };
+
     const changeRole = (user: UserRow, role: Role) => {
         router.patch(
             `/admin/users/${user.id}`,
@@ -81,7 +87,19 @@ export default function AdminUsersIndex({ users, roles }: Props) {
                                 <td className="py-2 text-xs text-muted-foreground">
                                     {user.email_verified_at ? 'yes' : 'no'}
                                 </td>
-                                <td className="py-2 text-right">
+                                <td className="flex justify-end gap-1 py-2">
+                                    {user.role !== 'admin' &&
+                                        user.id !== currentUser?.id && (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    impersonate(user)
+                                                }
+                                                className="rounded px-2 py-1 text-xs hover:bg-accent"
+                                            >
+                                                impersonate
+                                            </button>
+                                        )}
                                     <button
                                         type="button"
                                         onClick={() => deleteUser(user)}

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FolderController;
@@ -30,12 +31,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/folder-tree', [FolderController::class, 'tree'])->name('folders.tree');
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
-        Route::patch('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
-        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+        Route::middleware('no-impersonation')->group(function () {
+            Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+            Route::patch('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+            Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+            Route::post('/impersonate/{user}', [ImpersonationController::class, 'start'])->name('impersonate.start');
+        });
     });
 
-    Route::middleware('role:admin,moderator')->group(function () {
+    // Stop route is outside role:admin — the admin is currently logged in
+    // as the impersonated user, so their role is the target's, not admin.
+    // The controller checks session('impersonator_id') directly.
+    Route::post('/impersonate/stop', [ImpersonationController::class, 'stop'])->name('impersonate.stop');
+
+    Route::middleware(['role:admin,moderator', 'no-impersonation'])->group(function () {
         Route::get('/invites', [InviteController::class, 'index'])->name('invites.index');
         Route::post('/invites', [InviteController::class, 'store'])->name('invites.store');
         Route::delete('/invites/{invite}', [InviteController::class, 'destroy'])->name('invites.destroy');

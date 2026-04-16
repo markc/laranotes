@@ -23,10 +23,16 @@ export type CanHints = {
     manageUsers: boolean;
 };
 
+export type Impersonator = {
+    id: number;
+    name: string;
+};
+
 export type Auth = {
     user: User | null;
     role: Role | null;
     canHints: CanHints | null;
+    impersonator: Impersonator | null;
 };
 
 export type TwoFactorSetupData = {

@@ -10,6 +10,7 @@ import { AppearancePanel } from '@/components/dcs/panels/appearance-panel';
 import { FoldersPanel } from '@/components/dcs/panels/folders-panel';
 import { SearchPanel } from '@/components/dcs/panels/search-panel';
 import TopNav from '@/components/dcs/top-nav';
+import { ImpersonationBanner } from '@/components/impersonation-banner';
 import { ThemeProvider, useTheme } from '@/contexts/theme-context';
 
 const leftPanels = [
@@ -83,6 +84,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
             <DcsSidebar side="right" panels={rightPanels} />
 
             <TopNav />
+            <ImpersonationBanner />
 
             <div
                 className="sidebar-slide"

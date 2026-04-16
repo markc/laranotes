@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\BlockDuringImpersonation;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RequireRole;
@@ -25,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'role' => RequireRole::class,
+            'no-impersonation' => BlockDuringImpersonation::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -39,6 +39,8 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
+        $impersonatorId = $request->session()->get('impersonator_id');
+        $impersonator = $impersonatorId ? User::find($impersonatorId) : null;
 
         return [
             ...parent::share($request),
@@ -49,6 +51,10 @@ class HandleInertiaRequests extends Middleware
                 // canHints is advisory — authoritative checks remain in policies.
                 // Use these to hide UI affordances, never to gate server state.
                 'canHints' => $user ? $this->canHints($user) : null,
+                'impersonator' => $impersonator ? [
+                    'id' => $impersonator->id,
+                    'name' => $impersonator->name,
+                ] : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'folderTree' => fn () => $user ? Folder::tree($user) : [],
