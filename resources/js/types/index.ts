@@ -14,6 +14,10 @@ export interface PageProps {
         } | null;
     };
     name: string;
+    siteDescription: string;
+    defaultEditor: 'source' | 'wysiwyg';
+    defaultTheme: 'light' | 'dark' | 'system';
+    defaultScheme: 'crimson' | 'stone' | 'ocean' | 'forest' | 'sunset';
     sidebarOpen: boolean;
     folderTree: FolderNode[];
     flash?: {

@@ -11,7 +11,7 @@ import { FoldersPanel } from '@/components/dcs/panels/folders-panel';
 import { SearchPanel } from '@/components/dcs/panels/search-panel';
 import TopNav from '@/components/dcs/top-nav';
 import { ImpersonationBanner } from '@/components/impersonation-banner';
-import { ThemeProvider, useTheme } from '@/contexts/theme-context';
+import { ThemeProvider, useTheme, type ServerDefaults } from '@/contexts/theme-context';
 
 const leftPanels = [
     { label: 'L1: Folders', content: <FoldersPanel /> },
@@ -110,8 +110,14 @@ export default function AppDualSidebarLayout({
 }: {
     children: ReactNode;
 }) {
+    const { props } = usePage<{ defaultTheme?: string; defaultScheme?: string }>();
+    const serverDefaults: ServerDefaults = {
+        defaultTheme: props.defaultTheme as ServerDefaults['defaultTheme'],
+        defaultScheme: props.defaultScheme as ServerDefaults['defaultScheme'],
+    };
+
     return (
-        <ThemeProvider>
+        <ThemeProvider serverDefaults={serverDefaults}>
             <LayoutContent>{children}</LayoutContent>
         </ThemeProvider>
     );

@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { LogOut, Mail, Settings, ShieldCheck, User } from 'lucide-react';
+import { LogOut, Mail, Settings, ShieldCheck, Sliders, User } from 'lucide-react';
 import { useCanHints } from '@/hooks/use-can-hints';
 
 export function AccountPanel() {
@@ -65,16 +65,28 @@ export function AccountPanel() {
             </div>
 
             {canHints.manageUsers && (
-                <Link
-                    href="/admin/users"
-                    className="mt-3 flex items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-[var(--scheme-accent-subtle)]"
-                >
-                    <ShieldCheck
-                        className="h-4 w-4"
-                        style={{ color: 'var(--scheme-fg-muted)' }}
-                    />
-                    Manage users
-                </Link>
+                <>
+                    <Link
+                        href="/admin/users"
+                        className="mt-3 flex items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-[var(--scheme-accent-subtle)]"
+                    >
+                        <ShieldCheck
+                            className="h-4 w-4"
+                            style={{ color: 'var(--scheme-fg-muted)' }}
+                        />
+                        Manage users
+                    </Link>
+                    <Link
+                        href="/admin/settings"
+                        className="mt-1 flex items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-[var(--scheme-accent-subtle)]"
+                    >
+                        <Sliders
+                            className="h-4 w-4"
+                            style={{ color: 'var(--scheme-fg-muted)' }}
+                        />
+                        Site settings
+                    </Link>
+                </>
             )}
 
             {canHints.moderate && (

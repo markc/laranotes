@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Admin\ImpersonationController;
+use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\InviteController;
+use App\Http\Controllers\CollabController;
 use App\Http\Controllers\NoteController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/notes/search', [NoteController::class, 'search'])->name('notes.search');
     Route::resource('notes', NoteController::class);
+    Route::get('/api/collab/token/{note}', [CollabController::class, 'token'])->name('collab.token');
 
     Route::resource('folders', FolderController::class)->except(['show', 'create', 'edit']);
     Route::get('/api/folder-tree', [FolderController::class, 'tree'])->name('folders.tree');
@@ -36,6 +39,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::patch('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
             Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
             Route::post('/impersonate/{user}', [ImpersonationController::class, 'start'])->name('impersonate.start');
+            Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings.index');
+            Route::patch('/settings', [AdminSettingsController::class, 'update'])->name('settings.update');
         });
     });
 

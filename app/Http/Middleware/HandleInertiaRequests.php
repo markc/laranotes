@@ -2,9 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Folder;
 use App\Models\Note;
 use App\Models\User;
+use App\Repositories\FolderRepositoryInterface;
+use App\Services\SettingService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -42,9 +43,15 @@ class HandleInertiaRequests extends Middleware
         $impersonatorId = $request->session()->get('impersonator_id');
         $impersonator = $impersonatorId ? User::find($impersonatorId) : null;
 
+        $settings = app(SettingService::class);
+
         return [
             ...parent::share($request),
-            'name' => config('app.name'),
+            'name' => $settings->get('site_title'),
+            'siteDescription' => $settings->get('site_description'),
+            'defaultEditor' => $settings->get('default_editor'),
+            'defaultTheme' => $settings->get('default_theme'),
+            'defaultScheme' => $settings->get('default_scheme'),
             'auth' => [
                 'user' => $user,
                 'role' => $user?->role?->value,
@@ -57,7 +64,7 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'folderTree' => fn () => $user ? Folder::tree($user) : [],
+            'folderTree' => fn () => $user ? app(FolderRepositoryInterface::class)->tree($user) : [],
         ];
     }
 

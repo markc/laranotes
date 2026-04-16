@@ -41,7 +41,7 @@ type ThemeContextValue = ThemeState & {
 
 const STORAGE_KEY = 'laranotes-state';
 
-const defaults: ThemeState = {
+const hardDefaults: ThemeState = {
     theme: 'dark',
     scheme: 'ocean',
     carouselMode: 'slide',
@@ -50,11 +50,33 @@ const defaults: ThemeState = {
     sidebarWidth: 280,
 };
 
+export type ServerDefaults = {
+    defaultTheme?: 'light' | 'dark' | 'system';
+    defaultScheme?: ColorScheme;
+};
+
+function resolveDefaults(server?: ServerDefaults): ThemeState {
+    let theme: ThemeMode = hardDefaults.theme;
+    if (server?.defaultTheme === 'light' || server?.defaultTheme === 'dark') {
+        theme = server.defaultTheme;
+    } else if (server?.defaultTheme === 'system' && typeof window !== 'undefined') {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    return {
+        ...hardDefaults,
+        theme,
+        scheme: server?.defaultScheme ?? hardDefaults.scheme,
+    };
+}
+
 function clampPanel(n: number, max: number): number {
     return Math.max(0, Math.min(max, n));
 }
 
-function loadState(): ThemeState {
+function loadState(serverDefaults?: ServerDefaults): ThemeState {
+    const defaults = resolveDefaults(serverDefaults);
+
     if (typeof window === 'undefined') {
         return defaults;
     }
@@ -126,8 +148,8 @@ function applySchemeToDOM(scheme: ColorScheme) {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-    const [state, setState] = useState<ThemeState>(loadState);
+export function ThemeProvider({ children, serverDefaults }: { children: ReactNode; serverDefaults?: ServerDefaults }) {
+    const [state, setState] = useState<ThemeState>(() => loadState(serverDefaults));
     const [noPadding, setNoPadding] = useState(false);
 
     useEffect(() => {

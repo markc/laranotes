@@ -10,17 +10,29 @@ import {
     Type,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { CollabPresenceBar } from '@/components/collab-presence-bar';
 import { MarkdownEditor } from '@/components/markdown-editor';
 import { MarkdownPreview } from '@/components/markdown-preview';
 import { TiptapEditor } from '@/components/tiptap-editor';
 import { Button } from '@/components/ui/button';
+import { useCollabExtensions } from '@/hooks/use-collab-extensions';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useYjsCollab } from '@/hooks/use-yjs-collab';
 import { cn } from '@/lib/utils';
 import type { FolderLite, Note } from '@/types/models';
+
+type CollabConfig = {
+    token: string;
+    ws_url: string;
+    user: { id: number; name: string };
+    can_edit: boolean;
+} | null;
 
 type Props = {
     note: Note;
     folders: FolderLite[];
+    collab: CollabConfig;
 };
 
 type ViewMode = 'split' | 'editor' | 'preview';
@@ -34,7 +46,7 @@ return 'source';
     return (localStorage.getItem('editor-type') as EditorType) || 'source';
 }
 
-export default function EditNote({ note, folders }: Props) {
+export default function EditNote({ note, folders, collab: collabConfig }: Props) {
     const [title, setTitle] = useState(note.title);
     const [body, setBody] = useState(note.body ?? '');
     const [isPrivate, setIsPrivate] = useState(note.is_private);
@@ -44,25 +56,92 @@ export default function EditNote({ note, folders }: Props) {
     const [editorType, setEditorType] =
         useState<EditorType>(getStoredEditorType);
     const initialized = useRef(false);
+    const wasCollabRef = useRef(false);
+
+    const readOnly = !note.can_edit;
+    const collab = useYjsCollab(collabConfig);
+
+    const collabExtensions = useCollabExtensions(
+        collab
+            ? {
+                  ytext: collab.ytext,
+                  provider: collab.provider,
+                  undoManager: collab.undoManager,
+              }
+            : null,
+    );
+
+    // Lock to CodeMirror when collab is active with peers
+    useEffect(() => {
+        if (collab?.isCollabActive && editorType === 'wysiwyg') {
+            setEditorType('source');
+            localStorage.setItem('editor-type', 'source');
+            toast.info('Switched to markdown editor for live collaboration');
+        }
+    }, [collab?.isCollabActive]);
+
+    // Track collab connection for auto-save fallback
+    useEffect(() => {
+        if (collab?.connected) {
+            wasCollabRef.current = true;
+        } else if (wasCollabRef.current && !collab?.connected) {
+            // Disconnected — sync ytext back to body state for auto-save fallback
+            if (collab?.ytext) {
+                setBody(collab.ytext.toString());
+            }
+            toast.warning('Connection lost. Changes will sync when reconnected.');
+        }
+    }, [collab?.connected]);
+
+    // Sync ytext changes to body state for preview
+    useEffect(() => {
+        if (!collab?.ytext) return;
+        const observer = () => {
+            setBody(collab.ytext.toString());
+        };
+        collab.ytext.observe(observer);
+        return () => collab.ytext.unobserve(observer);
+    }, [collab?.ytext]);
 
     const switchEditor = (type: EditorType) => {
+        if (collab?.isCollabActive && type === 'wysiwyg') {
+            toast.info('Rich editor is unavailable during live collaboration');
+            return;
+        }
         setEditorType(type);
         localStorage.setItem('editor-type', type);
     };
 
-    const readOnly = !note.can_edit;
     const debouncedTitle = useDebounce(title, 700);
     const debouncedBody = useDebounce(body, 700);
 
-    // Auto-save on debounced changes (skip in read-only mode)
+    // Auto-save on debounced changes — suppressed when collab is connected
+    const collabConnected = collab?.connected ?? false;
     useEffect(() => {
         if (!initialized.current) {
             initialized.current = true;
-
             return;
         }
 
-        if (readOnly) {
+        if (readOnly) return;
+
+        // When collab is connected, only auto-save title/folder/privacy (not body)
+        if (collabConnected) {
+            setStatus('saving');
+            router.put(
+                `/notes/${note.id}`,
+                {
+                    title: debouncedTitle,
+                    is_private: isPrivate,
+                    folder_id: folderId,
+                },
+                {
+                    preserveScroll: true,
+                    preserveState: true,
+                    onSuccess: () => setStatus('saved'),
+                    onError: () => setStatus('idle'),
+                },
+            );
             return;
         }
 
@@ -83,17 +162,22 @@ export default function EditNote({ note, folders }: Props) {
             },
         );
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [debouncedTitle, debouncedBody, isPrivate, folderId]);
+    }, [debouncedTitle, debouncedBody, isPrivate, folderId, collabConnected]);
 
     // Keyboard shortcuts
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
-            if (readOnly) {
-                return;
-            }
+            if (readOnly) return;
 
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
+
+                if (collabConnected) {
+                    setStatus('saved');
+                    toast.info('Changes are synced automatically');
+                    return;
+                }
+
                 setStatus('saving');
                 router.put(
                     `/notes/${note.id}`,
@@ -107,9 +191,8 @@ export default function EditNote({ note, folders }: Props) {
             }
         };
         window.addEventListener('keydown', handler);
-
         return () => window.removeEventListener('keydown', handler);
-    }, [note.id, title, body, isPrivate, folderId, readOnly]);
+    }, [note.id, title, body, isPrivate, folderId, readOnly, collabConnected]);
 
     const handleDelete = () => {
         if (window.confirm('Delete this note?')) {
@@ -174,6 +257,7 @@ export default function EditNote({ note, folders }: Props) {
                             onClick={() => switchEditor('wysiwyg')}
                             icon={<Type className="h-3.5 w-3.5" />}
                             label="Rich"
+                            disabled={collab?.isCollabActive}
                         />
                     </div>
 
@@ -197,6 +281,8 @@ export default function EditNote({ note, folders }: Props) {
                             label="Preview"
                         />
                     </div>
+
+                    {collab && <CollabPresenceBar session={collab} />}
 
                     {!readOnly && (
                         <Button
@@ -231,7 +317,7 @@ export default function EditNote({ note, folders }: Props) {
                         {status === 'saving'
                             ? 'Saving…'
                             : status === 'saved'
-                              ? 'Saved'
+                              ? collab?.connected ? 'Synced' : 'Saved'
                               : ''}
                     </span>
                 </div>
@@ -244,7 +330,7 @@ export default function EditNote({ note, folders }: Props) {
                                 view === 'split' ? 'w-1/2 border-r' : 'flex-1',
                             )}
                         >
-                            {editorType === 'wysiwyg' ? (
+                            {editorType === 'wysiwyg' && !collab?.isCollabActive ? (
                                 <TiptapEditor
                                     value={body}
                                     onChange={setBody}
@@ -257,6 +343,7 @@ export default function EditNote({ note, folders }: Props) {
                                     onChange={setBody}
                                     placeholder="Start writing…"
                                     readOnly={readOnly}
+                                    collabExtensions={collabExtensions}
                                 />
                             )}
                         </div>
@@ -299,6 +386,12 @@ export default function EditNote({ note, folders }: Props) {
                             {new Date(note.updated_at).toLocaleString()}
                         </>
                     )}
+                    {collab?.connected && collab.peers.length > 0 && (
+                        <>
+                            {' '}
+                            · {collab.peers.length + 1} editing
+                        </>
+                    )}
                 </div>
             </div>
         </>
@@ -310,18 +403,22 @@ function ViewButton({
     onClick,
     icon,
     label,
+    disabled,
 }: {
     active: boolean;
     onClick: () => void;
     icon: React.ReactNode;
     label: string;
+    disabled?: boolean;
 }) {
     return (
         <button
             type="button"
             onClick={onClick}
+            disabled={disabled}
             className={cn(
                 'flex items-center gap-1 rounded px-2 py-1 text-xs',
+                disabled && 'cursor-not-allowed opacity-40',
                 active
                     ? 'bg-accent text-accent-foreground'
                     : 'text-muted-foreground hover:bg-accent/50',
