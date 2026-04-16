@@ -21,7 +21,7 @@ A shared markdown note-taking app — Laravel 13 + Inertia v3 + React 19 + SQLit
 
 ## Do not
 
-- Don't add a WYSIWYG editor. CodeMirror + markdown only.
+- **Editor:** CodeMirror source + Tiptap WYSIWYG, togglable per-user (stored in localStorage). Both emit markdown strings — no HTML in the database.
 - Don't add real-time collaboration. Single-editor-at-a-time is fine.
 - Don't add attachments / file uploads. Text markdown only.
 - Don't introduce MySQL or Postgres. SQLite is a hard constraint for the starter.

@@ -1,8 +1,18 @@
 import { Head, router } from '@inertiajs/react';
-import { Columns, Eye, Lock, LockOpen, Pencil, Trash2 } from 'lucide-react';
+import {
+    Code,
+    Columns,
+    Eye,
+    Lock,
+    LockOpen,
+    Pencil,
+    Trash2,
+    Type,
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { MarkdownEditor } from '@/components/markdown-editor';
 import { MarkdownPreview } from '@/components/markdown-preview';
+import { TiptapEditor } from '@/components/tiptap-editor';
 import { Button } from '@/components/ui/button';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
@@ -14,6 +24,15 @@ type Props = {
 };
 
 type ViewMode = 'split' | 'editor' | 'preview';
+type EditorType = 'source' | 'wysiwyg';
+
+function getStoredEditorType(): EditorType {
+    if (typeof window === 'undefined') {
+return 'source';
+}
+
+    return (localStorage.getItem('editor-type') as EditorType) || 'source';
+}
 
 export default function EditNote({ note, folders }: Props) {
     const [title, setTitle] = useState(note.title);
@@ -22,7 +41,14 @@ export default function EditNote({ note, folders }: Props) {
     const [folderId, setFolderId] = useState<number | null>(note.folder_id);
     const [status, setStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [view, setView] = useState<ViewMode>('split');
+    const [editorType, setEditorType] =
+        useState<EditorType>(getStoredEditorType);
     const initialized = useRef(false);
+
+    const switchEditor = (type: EditorType) => {
+        setEditorType(type);
+        localStorage.setItem('editor-type', type);
+    };
 
     const readOnly = !note.can_edit;
     const debouncedTitle = useDebounce(title, 700);
@@ -138,6 +164,21 @@ export default function EditNote({ note, folders }: Props) {
 
                     <div className="flex items-center gap-0.5 rounded-md border p-0.5">
                         <ViewButton
+                            active={editorType === 'source'}
+                            onClick={() => switchEditor('source')}
+                            icon={<Code className="h-3.5 w-3.5" />}
+                            label="Source"
+                        />
+                        <ViewButton
+                            active={editorType === 'wysiwyg'}
+                            onClick={() => switchEditor('wysiwyg')}
+                            icon={<Type className="h-3.5 w-3.5" />}
+                            label="Rich"
+                        />
+                    </div>
+
+                    <div className="flex items-center gap-0.5 rounded-md border p-0.5">
+                        <ViewButton
                             active={view === 'editor'}
                             onClick={() => setView('editor')}
                             icon={<Pencil className="h-3.5 w-3.5" />}
@@ -199,16 +240,25 @@ export default function EditNote({ note, folders }: Props) {
                     {(view === 'editor' || view === 'split') && (
                         <div
                             className={cn(
-                                'h-full overflow-hidden border-r',
-                                view === 'split' ? 'w-1/2' : 'flex-1',
+                                'h-full overflow-hidden',
+                                view === 'split' ? 'w-1/2 border-r' : 'flex-1',
                             )}
                         >
-                            <MarkdownEditor
-                                value={body}
-                                onChange={setBody}
-                                placeholder="Start writing…"
-                                readOnly={readOnly}
-                            />
+                            {editorType === 'wysiwyg' ? (
+                                <TiptapEditor
+                                    value={body}
+                                    onChange={setBody}
+                                    placeholder="Start writing…"
+                                    readOnly={readOnly}
+                                />
+                            ) : (
+                                <MarkdownEditor
+                                    value={body}
+                                    onChange={setBody}
+                                    placeholder="Start writing…"
+                                    readOnly={readOnly}
+                                />
+                            )}
                         </div>
                     )}
                     {(view === 'preview' || view === 'split') && (

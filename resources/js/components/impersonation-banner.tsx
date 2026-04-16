@@ -4,8 +4,8 @@ export function ImpersonationBanner() {
     const impersonator = usePage().props.auth?.impersonator;
 
     if (!impersonator) {
-return null;
-}
+        return null;
+    }
 
     const stop = () => {
         router.post('/impersonate/stop');

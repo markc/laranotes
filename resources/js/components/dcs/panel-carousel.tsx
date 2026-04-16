@@ -206,7 +206,7 @@ export default function PanelCarousel({
                                                   ? 'auto'
                                                   : 'none',
                                               transition:
-                                                  'opacity 0.3s ease-in-out',
+                                                  'opacity 200ms ease-out',
                                           }
                                         : {
                                               width: '100%',
