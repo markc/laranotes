@@ -11,7 +11,12 @@
 /resources/js/actions
 /resources/js/routes
 /resources/js/wayfinder
+/_notes
 /vendor
+/collab-server/target
+/collab-server.bak-warp
+/collab-server/.env
+/storage/yjs-docs
 .DS_Store
 .env
 .env.backup
